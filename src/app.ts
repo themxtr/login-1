@@ -25,8 +25,10 @@ app.use(express.json());
 app.get('/api/health', async (req: express.Request, res: express.Response) => {
   let dbStatus = 'unknown';
   try {
-    const { db } = await import('./db/client');
-    await db.execute('select 1' as any);
+    const { pool } = await import('./db/client');
+    const client = await pool.connect();
+    await client.query('SELECT 1');
+    client.release();
     dbStatus = 'connected';
   } catch (e: any) {
     dbStatus = `error: ${e.message}`;
@@ -38,6 +40,7 @@ app.get('/api/health', async (req: express.Request, res: express.Response) => {
     env: {
       hasDb: !!process.env.DATABASE_URL,
       hasFirebase: !!process.env.FIREBASE_PROJECT_ID,
+      dbUrl: process.env.DATABASE_URL?.slice(0, 40) + '...',
     }
   });
 });

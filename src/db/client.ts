@@ -7,13 +7,23 @@ if (!connectionString) {
   throw new Error('DATABASE_URL environment variable is required');
 }
 
+// Supabase pooler requires SSL — append sslmode if not present
+const connStr = connectionString.includes('sslmode')
+  ? connectionString
+  : `${connectionString}${connectionString.includes('?') ? '&' : '?'}sslmode=require`;
+
 const pool = new Pool({
-  connectionString,
-  // SSL required for Supabase
-  ssl: process.env.NODE_ENV === 'production' || connectionString.includes('supabase')
-    ? { rejectUnauthorized: false }
-    : false,
-  max: 10,
+  connectionString: connStr,
+  ssl: { rejectUnauthorized: false },
+  max: 5,
+  connectionTimeoutMillis: 5000,
+  idleTimeoutMillis: 10000,
+});
+
+// Prevent uncaught exceptions from crashing the serverless function
+pool.on('error', (err) => {
+  console.error('[DB Pool Error]', err.message);
 });
 
 export const db = drizzle(pool, { schema });
+export { pool };
