@@ -1,12 +1,14 @@
-import { drizzle } from 'drizzle-orm/libsql';
-import { createClient } from '@libsql/client';
+import { drizzle } from 'drizzle-orm/node-postgres';
+import { Pool } from 'pg';
 import * as schema from './schema';
 
-// Use Turso in production (set TURSO_DATABASE_URL + TURSO_AUTH_TOKEN env vars)
-// Falls back to local SQLite file for local development
-const client = createClient({
-  url: process.env.TURSO_DATABASE_URL || 'file:sqlite.db',
-  authToken: process.env.TURSO_AUTH_TOKEN,
+if (!process.env.DATABASE_URL) {
+  throw new Error('DATABASE_URL environment variable is required');
+}
+
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
 });
 
-export const db = drizzle(client, { schema });
+export const db = drizzle(pool, { schema });

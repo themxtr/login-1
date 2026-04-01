@@ -1,36 +1,34 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 import { db } from './client';
 import { users, transactions } from './schema';
-import { randomUUID } from 'node:crypto';
+import { Pool } from 'pg';
 
 async function seed() {
-  console.log('Seeding database...');
+  console.log('🌱 Seeding Supabase database...');
 
-  // 1. Create Users
+  // 1. Create Users (no hardcoded IDs — PostgreSQL generates UUIDs)
   const [admin] = await db.insert(users).values({
-    id: 'admin-id',
     name: 'Default Admin',
     email: 'admin@finance.com',
     role: 'ADMIN',
     status: 'ACTIVE',
-  }).returning();
+  }).onConflictDoNothing().returning();
 
   const [analyst] = await db.insert(users).values({
-    id: 'analyst-id',
     name: 'Sample Analyst',
     email: 'analyst@finance.com',
     role: 'ANALYST',
     status: 'ACTIVE',
-  }).returning();
+  }).onConflictDoNothing().returning();
 
-  const [viewer] = await db.insert(users).values({
-    id: 'viewer-id',
-    name: 'Sample Viewer',
-    email: 'viewer@finance.com',
-    role: 'VIEWER',
-    status: 'ACTIVE',
-  }).returning();
+  if (!admin) {
+    console.log('Users already seeded — skipping.');
+    process.exit(0);
+  }
 
-  console.log(`Created users: Admin (${admin.id}), Analyst (${analyst.id}), Viewer (${viewer.id})`);
+  console.log(`✅ Created users: Admin (${admin.id}), Analyst (${analyst?.id})`);
 
   // 2. Create Sample Transactions
   const categories = ['Housing', 'Food', 'Salary', 'Investment', 'Entertainment', 'Utilities', 'Transportation'];
@@ -41,13 +39,12 @@ async function seed() {
     const date = new Date();
     date.setMonth(date.getMonth() - i);
     date.setDate(1);
-
     sampleTransactions.push({
       userId: admin.id,
       amount: 5000,
       type: 'INCOME' as const,
       category: 'Salary',
-      date: date,
+      date,
       notes: `Salary for month -${i}`,
     });
   }
@@ -57,13 +54,12 @@ async function seed() {
     const date = new Date();
     date.setMonth(date.getMonth() - i);
     date.setDate(1);
-
     sampleTransactions.push({
       userId: admin.id,
       amount: 1500,
       type: 'EXPENSE' as const,
       category: 'Housing',
-      date: date,
+      date,
       notes: `Rent for month -${i}`,
     });
   }
@@ -73,8 +69,7 @@ async function seed() {
     const type = Math.random() > 0.8 ? 'INCOME' : 'EXPENSE';
     const amount = type === 'INCOME' ? Math.floor(Math.random() * 200) : Math.floor(Math.random() * 100);
     const date = new Date();
-    date.setDate(date.getDate() - Math.floor(Math.random() * 180)); // Last 6 months
-
+    date.setDate(date.getDate() - Math.floor(Math.random() * 180));
     sampleTransactions.push({
       userId: admin.id,
       amount,
@@ -86,9 +81,8 @@ async function seed() {
   }
 
   await db.insert(transactions).values(sampleTransactions);
-  console.log('Inserted 62 sample transactions.');
-
-  console.log('Seeding complete!');
+  console.log(`✅ Inserted ${sampleTransactions.length} sample transactions.`);
+  console.log('🎉 Seeding complete!');
   process.exit(0);
 }
 

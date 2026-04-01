@@ -1,22 +1,25 @@
-import { sqliteTable, text, real, integer } from 'drizzle-orm/sqlite-core';
-import { randomUUID } from 'node:crypto';
+import { pgTable, text, real, uuid, timestamp, pgEnum } from 'drizzle-orm/pg-core';
 
-export const users = sqliteTable('users', {
-  id: text('id').primaryKey().$defaultFn(() => randomUUID()),
+export const roleEnum = pgEnum('role', ['ADMIN', 'ANALYST', 'VIEWER']);
+export const statusEnum = pgEnum('status', ['ACTIVE', 'INACTIVE']);
+export const transactionTypeEnum = pgEnum('transaction_type', ['INCOME', 'EXPENSE']);
+
+export const users = pgTable('users', {
+  id: uuid('id').defaultRandom().primaryKey(),
   name: text('name').notNull(),
   email: text('email').unique().notNull(),
-  role: text('role', { enum: ['ADMIN', 'ANALYST', 'VIEWER'] }).notNull().default('VIEWER'),
-  status: text('status', { enum: ['ACTIVE', 'INACTIVE'] }).notNull().default('ACTIVE'),
-  createdAt: integer('created_at', { mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
+  role: roleEnum('role').notNull().default('VIEWER'),
+  status: statusEnum('status').notNull().default('ACTIVE'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
-export const transactions = sqliteTable('transactions', {
-  id: text('id').primaryKey().$defaultFn(() => randomUUID()),
-  userId: text('user_id').references(() => users.id).notNull(),
+export const transactions = pgTable('transactions', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  userId: uuid('user_id').references(() => users.id).notNull(),
   amount: real('amount').notNull(),
-  type: text('type', { enum: ['INCOME', 'EXPENSE'] }).notNull(),
+  type: transactionTypeEnum('type').notNull(),
   category: text('category').notNull(),
-  date: integer('date', { mode: 'timestamp' }).notNull(),
+  date: timestamp('date').notNull(),
   notes: text('notes'),
-  createdAt: integer('created_at', { mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
 });
