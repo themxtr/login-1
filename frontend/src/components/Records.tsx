@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { api, getMockUser } from '../services/api'
+import { api } from '../services/api'
 import type { Transaction } from '../services/api'
 import { Plus, Trash2, Edit2, X } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'

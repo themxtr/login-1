@@ -1,8 +1,7 @@
-import { setMockUser } from '../services/api'
 import type { Role } from '../services/api'
 import { Shield, ShieldAlert, ShieldCheck, RefreshCw } from 'lucide-react'
 
-const RoleSwitcher = ({ onRoleChange }: { onRoleChange: (role: Role) => void }) => {
+const RoleSwitcher = ({ onRoleChange = () => {} }: { onRoleChange?: (role: Role) => void }) => {
   const roles: { role: Role; label: string; icon: any }[] = [
     { role: 'ADMIN', label: 'Admin', icon: ShieldCheck },
     { role: 'ANALYST', label: 'Analyst', icon: ShieldAlert },
@@ -10,10 +9,6 @@ const RoleSwitcher = ({ onRoleChange }: { onRoleChange: (role: Role) => void }) 
   ]
 
   const handleChange = (role: Role) => {
-    setMockUser({
-      id: `${role.toLowerCase()}-id`,
-      role: role
-    })
     onRoleChange(role)
   }
 

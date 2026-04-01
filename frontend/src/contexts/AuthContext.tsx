@@ -4,7 +4,7 @@ import {
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword, 
   signOut, 
-  User as FirebaseUser,
+  type User as FirebaseUser,
   getIdToken
 } from 'firebase/auth';
 import { auth } from '../firebaseConfig';
