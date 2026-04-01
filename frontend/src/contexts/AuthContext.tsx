@@ -4,6 +4,8 @@ import {
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword, 
   signOut, 
+  signInWithPopup,
+  GoogleAuthProvider,
   type User as FirebaseUser,
   getIdToken
 } from 'firebase/auth';
@@ -14,6 +16,7 @@ interface AuthContextType {
   loading: boolean;
   login: (email: string, pass: string) => Promise<void>;
   signup: (email: string, pass: string) => Promise<void>;
+  loginWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
   getToken: () => Promise<string | null>;
 }
@@ -34,6 +37,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = (email: string, pass: string) => signInWithEmailAndPassword(auth, email, pass).then(() => {});
   const signup = (email: string, pass: string) => createUserWithEmailAndPassword(auth, email, pass).then(() => {});
+  const loginWithGoogle = () => signInWithPopup(auth, new GoogleAuthProvider()).then(() => {});
   const logout = () => signOut(auth);
   const getToken = async () => {
     if (!user) return null;
@@ -45,6 +49,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     loading,
     login,
     signup,
+    loginWithGoogle,
     logout,
     getToken
   };
