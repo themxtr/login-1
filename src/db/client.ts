@@ -7,16 +7,15 @@ if (!connectionString) {
   throw new Error('DATABASE_URL environment variable is required');
 }
 
-// Supabase pooler requires SSL — append sslmode if not present
-const connStr = connectionString.includes('sslmode')
-  ? connectionString
-  : `${connectionString}${connectionString.includes('?') ? '&' : '?'}sslmode=require`;
+// Strip any sslmode from the URL — let the Pool ssl option handle it
+// (sslmode in URL overrides Pool ssl options, breaking rejectUnauthorized: false)
+const connStr = connectionString.replace(/[?&]sslmode=[^&]*/g, '');
 
 const pool = new Pool({
   connectionString: connStr,
-  ssl: { rejectUnauthorized: false },
+  ssl: { rejectUnauthorized: false }, // Required for Supabase self-signed cert
   max: 5,
-  connectionTimeoutMillis: 5000,
+  connectionTimeoutMillis: 8000,
   idleTimeoutMillis: 10000,
 });
 
