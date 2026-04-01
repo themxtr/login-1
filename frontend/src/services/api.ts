@@ -56,7 +56,10 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 
   headers.set('Content-Type', 'application/json');
 
-  const response = await fetch(`/api${path}`, {
+  // Use VITE_API_URL when deployed (e.g. Railway/Render), fall back to /api for local dev
+  const baseUrl = import.meta.env.VITE_API_URL || '/api';
+
+  const response = await fetch(`${baseUrl}${path}`, {
     ...options,
     headers,
   });
