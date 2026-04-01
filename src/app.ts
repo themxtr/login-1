@@ -11,30 +11,48 @@ dotenv.config();
 
 const app = express();
 
-// Base Middleware
+// CORS — allow all origins (same-origin in production, but needed for dev)
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || '*',
+  origin: '*',
   methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-User-Id', 'X-User-Role'],
 }));
+app.options('*', cors()); // Handle CORS preflight for all routes
+
 app.use(express.json());
 
-// Auth - Required for all routes
-app.use(authMiddleware);
-
-// Health Check
-app.get('/api/health', (req: express.Request, res: express.Response) => {
-  res.json({ status: 'OK', timestamp: new Date().toISOString() });
+// Health Check — NO auth required (for diagnostics)
+app.get('/api/health', async (req: express.Request, res: express.Response) => {
+  let dbStatus = 'unknown';
+  try {
+    const { db } = await import('./db/client');
+    await db.execute('select 1' as any);
+    dbStatus = 'connected';
+  } catch (e: any) {
+    dbStatus = `error: ${e.message}`;
+  }
+  res.json({
+    status: 'OK',
+    timestamp: new Date().toISOString(),
+    db: dbStatus,
+    env: {
+      hasDb: !!process.env.DATABASE_URL,
+      hasFirebase: !!process.env.FIREBASE_PROJECT_ID,
+    }
+  });
 });
 
-// APIs - prefixed with /api for Vercel routing
+// Auth — required for all API routes below
+app.use(authMiddleware);
+
+// APIs
 app.use('/api/records', recordsRouter);
 app.use('/api/dashboard', dashboardRouter);
 app.use('/api/users', usersRouter);
 
 // Global Error Handler
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  console.error(err);
+  console.error('Unhandled error:', err);
   res.status(500).json({
     error: 'Internal Server Error',
     message: err.message || 'An unexpected error occurred',

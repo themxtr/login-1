@@ -10,7 +10,7 @@ const router = Router();
 // GET /dashboard/summary: Accessible by ALL roles
 router.get('/summary', rbacMiddleware(['VIEWER', 'ANALYST', 'ADMIN']), async (req: AuthenticatedRequest, res: Response) => {
   try {
-    // 1. Basic Totals (Income and Expenses separately for robustness)
+    // 1. Basic Totals
     const incomeResult = await db.select({
       total: sum(transactions.amount),
     })
@@ -43,21 +43,21 @@ router.get('/summary', rbacMiddleware(['VIEWER', 'ANALYST', 'ADMIN']), async (re
       .orderBy(desc(transactions.date))
       .limit(10);
 
-    // 4. Monthly Trends (Last 6 Months)
+    // 4. Monthly Trends (Last 6 Months) — PostgreSQL date functions
     const sixMonthsAgo = new Date();
     sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
     sixMonthsAgo.setDate(1);
 
-    // Use raw column name in GROUP BY to be safe, or repeat expression
     const monthlyTrends = await db.select({
-      month: sql<string>`strftime('%Y-%m', datetime(${transactions.date} / 1000, 'unixepoch'))`.as('month_label'),
+      // PostgreSQL: to_char for date formatting (replaces SQLite strftime)
+      month: sql<string>`to_char(${transactions.date}, 'YYYY-MM')`.as('month_label'),
       type: transactions.type,
       total: sum(transactions.amount).as('monthly_total'),
     })
     .from(transactions)
     .where(gte(transactions.date, sixMonthsAgo))
-    .groupBy(sql`month_label`, transactions.type)
-    .orderBy(sql`month_label ASC`);
+    .groupBy(sql`to_char(${transactions.date}, 'YYYY-MM')`, transactions.type)
+    .orderBy(sql`to_char(${transactions.date}, 'YYYY-MM') ASC`);
 
     res.json({
       totals: {
@@ -78,7 +78,7 @@ router.get('/summary', rbacMiddleware(['VIEWER', 'ANALYST', 'ADMIN']), async (re
     });
   } catch (err) {
     console.error('Summary API Error:', err);
-    res.status(500).json({ error: 'Failed to generate dashboard summary' });
+    res.status(500).json({ error: 'Failed to generate dashboard summary', details: String(err) });
   }
 });
 
