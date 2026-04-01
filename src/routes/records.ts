@@ -75,7 +75,7 @@ router.patch('/:id', async (req: AuthenticatedRequest, res: Response) => {
     
     const [updatedRecord] = await db.update(transactions)
       .set(body)
-      .where(eq(transactions.id, id))
+      .where(eq(transactions.id as any, id as string))
       .returning();
     
     if (!updatedRecord) {
@@ -95,7 +95,7 @@ router.delete('/:id', async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { id } = req.params;
     const [deletedRecord] = await db.delete(transactions)
-      .where(eq(transactions.id, id))
+      .where(eq(transactions.id as any, id as string))
       .returning();
     
     if (!deletedRecord) {

@@ -9,8 +9,9 @@ export type AuthenticatedRequest = Request & {
   };
 };
 
-export const authMiddleware = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
-  const authHeader = req.headers.authorization;
+export const authMiddleware = async (req: Request, res: Response, next: NextFunction) => {
+  const authReq = req as AuthenticatedRequest;
+  const authHeader = authReq.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     // FALLBACK for initial development OR if user specifically wants mock auth still.
@@ -19,7 +20,7 @@ export const authMiddleware = async (req: AuthenticatedRequest, res: Response, n
     const mockRole = req.headers['x-user-role'] as 'ADMIN' | 'ANALYST' | 'VIEWER';
     
     if (mockId && mockRole) {
-      req.user = { id: mockId, role: mockRole };
+      authReq.user = { id: mockId, role: mockRole };
       return next();
     }
 
@@ -43,7 +44,7 @@ export const authMiddleware = async (req: AuthenticatedRequest, res: Response, n
       role = 'ADMIN';
     }
 
-    req.user = {
+    authReq.user = {
       id: decodedToken.uid,
       email: decodedToken.email,
       role: role

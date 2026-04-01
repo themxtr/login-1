@@ -34,7 +34,7 @@ async function seed() {
 
   // 2. Create Sample Transactions
   const categories = ['Housing', 'Food', 'Salary', 'Investment', 'Entertainment', 'Utilities', 'Transportation'];
-  const sampleTransactions = [];
+  const sampleTransactions: (typeof transactions.$inferInsert)[] = [];
 
   // Monthly salary (6 months)
   for (let i = 0; i < 6; i++) {

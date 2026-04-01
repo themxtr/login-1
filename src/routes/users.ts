@@ -53,7 +53,7 @@ router.patch('/:id', async (req: AuthenticatedRequest, res: Response) => {
     
     const [updatedUser] = await db.update(users)
       .set(body)
-      .where(eq(users.id, id))
+      .where(eq(users.id as any, id as string))
       .returning();
     
     if (!updatedUser) {
