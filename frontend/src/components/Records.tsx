@@ -3,8 +3,10 @@ import { api } from '../services/api'
 import type { Transaction } from '../services/api'
 import { Plus, Trash2, Edit2, X } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useAuth } from '../contexts/AuthContext'
 
 const Records = () => {
+  const { user } = useAuth()
   const [records, setRecords] = useState<Transaction[]>([])
   const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
@@ -96,7 +98,7 @@ const Records = () => {
           />
         </div>
         
-        {currentUser.role === 'ADMIN' && (
+        {user && (
           <button className="btn btn-primary" onClick={() => setShowModal(true)}>
             <Plus size={20} /> Add Record
           </button>
@@ -134,7 +136,7 @@ const Records = () => {
                   <td>
                     <div className="flex gap-2">
                       <button className="btn btn-ghost p-1" style={{ color: 'var(--primary-main)' }}><Edit2 size={16} /></button>
-                      {currentUser.role === 'ADMIN' && (
+                      {user && (
                         <button 
                           className="btn btn-ghost p-1" 
                           style={{ color: 'var(--error)' }}
