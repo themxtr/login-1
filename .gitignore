@@ -9,6 +9,7 @@ frontend/dist/
 # Configuration and Database
 .env
 sqlite.db
+dashboardfincheck-firebase-adminsdk-fbsvc-d912e68599.json
 .firebase/
 firebase-debug.log*
 
