@@ -40,7 +40,7 @@ app.get('/api/health', async (req: express.Request, res: express.Response) => {
     env: {
       hasDb: !!process.env.DATABASE_URL,
       hasFirebase: !!process.env.FIREBASE_PROJECT_ID,
-      dbUrl: process.env.DATABASE_URL?.slice(0, 40) + '...',
+      dbUrl: process.env.DATABASE_URL?.slice(0, 50) + '...',
     }
   });
 });
