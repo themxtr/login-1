@@ -1,0 +1,17 @@
+# Dependencies
+node_modules/
+frontend/node_modules/
+
+# Production Build
+dist/
+frontend/dist/
+
+# Configuration and Database
+.env
+sqlite.db
+.firebase/
+firebase-debug.log*
+
+# OS specific
+.DS_Store
+Thumbs.db
