@@ -18,7 +18,6 @@ const Records = () => {
     date: new Date().toISOString().split('T')[0]
   })
 
-  const currentUser = getMockUser()
 
   const fetchRecords = async () => {
     try {
