@@ -7,12 +7,16 @@ if (!connectionString) {
   throw new Error('DATABASE_URL environment variable is required');
 }
 
-// Strip any sslmode from the URL — let the Pool ssl option handle it
-// (sslmode in URL overrides Pool ssl options, breaking rejectUnauthorized: false)
-const connStr = connectionString.replace(/[?&]sslmode=[^&]*/g, '');
+// pg's URL parser truncates usernames at dots (e.g., postgres.project-ref → postgres).
+// Use Node's URL class to parse the string and pass individual params to bypass this bug.
+const parsed = new URL(connectionString);
 
 const pool = new Pool({
-  connectionString: connStr,
+  host: parsed.hostname,
+  port: parseInt(parsed.port) || 5432,
+  database: parsed.pathname.replace(/^\//, ''),
+  user: parsed.username,         // Preserves full username: postgres.yrikrxxbnouodwqtfjur
+  password: parsed.password,
   ssl: { rejectUnauthorized: false }, // Required for Supabase self-signed cert
   max: 5,
   connectionTimeoutMillis: 8000,
