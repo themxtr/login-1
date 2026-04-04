@@ -1,58 +1,95 @@
-# Finance Dashboard with Firebase Auth
+# Finance Dashboard
 
-A full-stack finance tracking dashboard built with Express (Backend), Vite/React (Frontend), Firebase (Auth), and Supabase (PostgreSQL/Drizzle).
+A comprehensive full-stack finance tracking application built with modern web technologies, featuring secure authentication, real-time analytics, and role-based access control.
 
-## Recent Fixes & Implementation Process
+## 🚀 Live Demo
+- **URL**: [https://login-1-opal.vercel.app/](https://login-1-opal.vercel.app/)
 
-During development and deployment, several critical backend and infrastructure issues were resolved to ensure full functionality:
+## 🛠️ Technology Stack
 
-### 1. API Route & Proxy Correlation
-- **Issue**: The Vite development proxy was incorrectly stripping the `/api` prefix from frontend requests, causing `404 Not Found` or `Connection Refused` errors locally.
-- **Fix**: Updated `frontend/vite.config.ts` to remove the path rewrite and correctly forward `/api/*` requests to the Express backend.
+### Frontend
+- **Framework**: React 18 with Vite
+- **Styling**: TailwindCSS for responsive and modern UI
+- **Icons**: Lucide-React
+- **Authentication**: Firebase Client SDK
+- **Data Fetching**: Custom API hooks with Fetch API
 
-### 2. Environment Variable Loading Order
-- **Issue**: The database client was attempting to connect before the `.env` file was loaded, resulting in `undefined` credentials.
-- **Fix**: 
-  - Updated `package.json` to use the Node.js `--env-file=.env` flag.
-  - Refactored `src/index.ts` to ensure `dotenv` and `app` are handled in the correct sequence.
+### Backend
+- **Runtime**: Node.js + Express (TypeScript)
+- **Database**: PostgreSQL (Supabase)
+- **ORM**: Drizzle ORM
+- **Authentication**: Firebase Admin SDK for secure token verification
+- **Deployment**: Vercel Serverless Functions
 
-### 3. Supabase Username Parsing (The "Dot" Bug)
-- **Issue**: The default PostgreSQL driver (`pg`) URL parser truncates usernames containing dots (e.g., `postgres.project-ref` becomes `postgres`), leading to authentication failures.
-- **Fix**: Implemented manual parsing in `src/db/client.ts` using Node's `URL` class to preserve the full Supabase connection string parameters.
+## ✨ Core Features
 
-### 4. Firebase UID Schema Support
-- **Issue**: The database was initialized with `UUID` columns for user IDs, which are incompatible with the string-based UIDs provided by Firebase Authentication.
-- **Fix**: Migrated the `users.id` and `transactions.user_id` columns to `TEXT` type to natively support Firebase UIDs.
+- **Robust Authentication**: Secure login and signup powered by Firebase Auth.
+- **Transaction Management**: 
+  - Add, edit, and delete income/expense records.
+  - Categorize transactions for better tracking.
+  - Filter records by date, type, and category.
+- **Dynamic Dashboard**:
+  - Real-time balance, income, and expense summaries.
+  - Visual analytics for financial health monitoring.
+- **Role-Based Access Control (RBAC)**:
+  - **ADMIN**: Full access to add/edit/delete/view all records and manage users.
+  - **ANALYST**: Access to view and filter all records.
+  - **VIEWER**: Basic access to their own dashboard.
+- **Automated User Sync**: Firebase users are automatically synchronized with the PostgreSQL database upon their first login to ensure data consistency.
 
-### 5. Automatic User Synchronization (Upsert)
-- **Issue**: Transactions could not be added because the corresponding user record did not exist in the local database (Foreign Key constraint).
-- **Fix**: Added an "upsert" mechanism to the `authMiddleware`. Every authenticated request now automatically synchronizes the Firebase user's profile and role with the local database.
+## ⚙️ Configuration & Setup
 
-### 6. Vercel Production Cleanup
-- **Issue**: The production site was failing with "Failed to fetch" because of an obsolete `VITE_API_URL` variable pointing to an external environment.
-- **Fix**: Defer to relative paths by removing the external API URL from Vercel environment settings, allowing the frontend to correctly reach the co-located Vercel API functions.
+### Prerequisites
+- Node.js (v18+)
+- Firebase Project
+- Supabase PostgreSQL Database
 
-## Local Development
+### Environment Variables
+Create a `.env` file in the root directory:
 
-1. **Prerequisites**:
-   - Node.js 20+
-   - Supabase / PostgreSQL instance
-   - Firebase Project (Admin SDK credentials)
+```env
+# Database Connections
+DATABASE_URL="postgresql://postgres.project-id:password@host:6543/postgres?pgbouncer=true"
+DIRECT_URL="postgresql://postgres:password@host:5432/postgres"
 
-2. **Setup**:
+# Firebase Admin SDK (Backend)
+FIREBASE_PROJECT_ID="your-project-id"
+FIREBASE_CLIENT_EMAIL="your-client-email"
+FIREBASE_PRIVATE_KEY="your-private-key"
+
+# Application Configuration
+ADMIN_EMAILS="admin@example.com,developer@example.com"
+
+# Frontend Firebase Config (Prefix with VITE_)
+VITE_FIREBASE_API_KEY="..."
+VITE_FIREBASE_AUTH_DOMAIN="..."
+VITE_FIREBASE_PROJECT_ID="..."
+VITE_FIREBASE_STORAGE_BUCKET="..."
+VITE_FIREBASE_MESSAGING_SENDER_ID="..."
+VITE_FIREBASE_APP_ID="..."
+```
+
+### Installation
+1. Clone the repository
+2. Install dependencies:
    ```bash
-   npm install
-   cd frontend && npm install
+   npm install && cd frontend && npm install && cd ..
    ```
-
-3. **Running**:
+3. Run the development server:
    ```bash
-   # Root directory (runs both frontend and backend)
    npm run dev
    ```
 
-## Technology Stack
-- **Backend**: Express.js, Drizzle ORM, Firebase Admin SDK
-- **Frontend**: Vite, React, TailwindCSS
-- **Database**: PostgreSQL (Supabase)
-- **Authentication**: Firebase Auth (Google & Email/Password)
+## 🏗️ Architecture
+
+- **`src/`**: Backend Express application.
+  - `routes/`: API endpoints for dashboard, records, and health checks.
+  - `middleware/`: Authentication and RBAC logic.
+  - `db/`: Drizzle schema and client initialization.
+- **`frontend/`**: React client application.
+  - `src/components/`: Reusable UI components.
+  - `src/services/`: API communication layer.
+  - `src/context/`: Auth state management.
+
+## 📄 License
+This project is for demonstration purposes. All rights reserved.
