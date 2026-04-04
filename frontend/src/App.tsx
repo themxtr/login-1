@@ -33,50 +33,41 @@ const AppContent: React.FC = () => {
   return (
     <div className="app-container">
       <aside className="sidebar">
-        <div className="flex-1 flex flex-col min-h-0 bg-white/5 border-r border-glass-border">
-          <div className="p-8">
-            <div className="flex items-center gap-4 mb-12">
-              <img src="/logo.svg" alt="FinanceDash" className="w-10 h-10 shadow-lg shadow-primary/20 rounded-xl" />
-              <span className="text-2xl font-black tracking-tight bg-gradient-to-br from-white to-white/60 bg-clip-text text-transparent">
-                FinanceDash
-              </span>
-            </div>
-            
-            <nav className="space-y-4">
-              {[
-                { id: 'dashboard', icon: <LayoutDashboard size={22} />, label: 'Overview' },
-                { id: 'records', icon: <ClipboardList size={22} />, label: 'Analytics' },
-                { id: 'settings', icon: <SettingsIcon size={22} />, label: 'Settings' },
-              ].map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => setCurrentPage(item.id as any)}
-                  className={`w-full flex items-center gap-4 px-6 py-4 rounded-3xl font-bold transition-all ${
-                    currentPage === item.id 
-                      ? 'bg-primary text-bg-deep shadow-xl shadow-primary/20' 
-                      : 'text-secondary hover:bg-white/5 hover:text-white'
-                  }`}
-                >
-                  {item.icon}
-                  <span className="text-sm tracking-wide">{item.label}</span>
-                </button>
-              ))}
-            </nav>
-          </div>
-          
-          <div className="mt-auto p-8 space-y-4">
-            <div className="p-5 rounded-3xl bg-white/5 border border-glass-border">
-              <p className="text-[10px] text-secondary font-bold uppercase tracking-widest mb-1">PRO PLAN</p>
-              <p className="text-xs font-bold">Unlocking AI Insights</p>
-            </div>
-            <button 
-              onClick={logout}
-              className="w-full flex items-center gap-4 px-6 py-4 rounded-3xl text-secondary hover:bg-rose-500/10 hover:text-rose-500 transition-all font-bold"
+        <div className="logo">
+          <img src="/logo.svg" alt="FinanceDash" className="w-10 h-10 shadow-lg shadow-primary/20 rounded-xl" />
+          <span>FinanceDash</span>
+        </div>
+        
+        <nav className="nav-links">
+          {[
+            { id: 'dashboard', icon: <LayoutDashboard size={22} />, label: 'Overview' },
+            { id: 'records', icon: <ClipboardList size={22} />, label: 'Analytics' },
+            { id: 'settings', icon: <SettingsIcon size={22} />, label: 'Settings' },
+          ].map((item) => (
+            <motion.li
+              key={item.id}
+              whileHover={{ x: 5 }}
+              onClick={() => setCurrentPage(item.id as any)}
+              className={currentPage === item.id ? 'active' : ''}
             >
-              <LogOut size={22} />
-              <span className="text-sm tracking-wide">Sign Out</span>
-            </button>
+              {item.icon}
+              <span>{item.label}</span>
+            </motion.li>
+          ))}
+        </nav>
+        
+        <div className="mt-auto pt-8 space-y-6">
+          <div className="p-5 rounded-3xl bg-white/5 border border-glass-border">
+            <p className="text-[10px] text-secondary font-bold uppercase tracking-widest mb-1">PRO PLAN</p>
+            <p className="text-xs font-bold">Unlocking AI Insights</p>
           </div>
+          <button 
+            onClick={logout}
+            className="w-full flex items-center gap-4 px-6 py-4 rounded-3xl text-secondary hover:bg-rose-500/10 hover:text-rose-500 transition-all font-bold"
+          >
+            <LogOut size={22} />
+            <span className="text-sm tracking-wide">Sign Out</span>
+          </button>
         </div>
       </aside>
 
