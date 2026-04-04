@@ -1,7 +1,10 @@
-import app from './app';
 import dotenv from 'dotenv';
 
+// Load env vars FIRST before any other module reads process.env
 dotenv.config();
+
+// Now import app (which transitively imports db/client.ts that reads DATABASE_URL)
+import app from './app';
 
 const PORT = process.env.PORT || 3000;
 

@@ -1,13 +1,13 @@
+import dotenv from 'dotenv';
+dotenv.config(); // MUST be first — loads .env before any other module reads process.env
+
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import './lib/firebase'; // Initialize Firebase Admin
 import { authMiddleware } from './middleware/auth';
 import recordsRouter from './routes/records';
 import dashboardRouter from './routes/dashboard';
 import usersRouter from './routes/users';
-
-dotenv.config();
 
 const app = express();
 

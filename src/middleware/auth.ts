@@ -1,11 +1,14 @@
 import { Request, Response, NextFunction } from 'express';
 import { admin } from '../lib/firebase';
+import { db } from '../db/client';
+import { users } from '../db/schema';
 
 export type AuthenticatedRequest = Request & {
   user?: {
     id: string;
     role: 'ADMIN' | 'ANALYST' | 'VIEWER';
     email?: string;
+    name?: string;
   };
 };
 
@@ -36,17 +39,33 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
     const decodedToken = await admin.auth().verifyIdToken(idToken);
     
     // Role mapping - for now, we'll assign ADMIN to the primary email or first user.
-    // In a real app, this would come from a database query or Custom Claims.
     let role: 'ADMIN' | 'ANALYST' | 'VIEWER' = 'VIEWER';
     
-    // Quick heuristic: the first user or a specific dev email is ADMIN
-    if (process.env.ADMIN_EMAILS?.includes(decodedToken.email || '')) {
+    if (process.env.ADMIN_EMAILS?.split(',').map(e => e.trim()).includes(decodedToken.email || '')) {
       role = 'ADMIN';
     }
+
+    // Sync user to DB (Upsert)
+    const name = decodedToken.name || (decodedToken.email ? decodedToken.email.split('@')[0] : 'User');
+    
+    await db.insert(users).values({
+      id: decodedToken.uid,
+      name,
+      email: decodedToken.email!,
+      role: role,
+    }).onConflictDoUpdate({
+      target: users.id,
+      set: {
+        email: decodedToken.email!,
+        name,
+        role: role,
+      }
+    });
 
     authReq.user = {
       id: decodedToken.uid,
       email: decodedToken.email,
+      name,
       role: role
     };
 

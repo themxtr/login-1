@@ -11,6 +11,7 @@ if (!connectionString) {
 // Use Node's URL class to parse the string and pass individual params to bypass this bug.
 const parsed = new URL(connectionString);
 
+
 const pool = new Pool({
   host: parsed.hostname,
   port: parseInt(parsed.port) || 5432,

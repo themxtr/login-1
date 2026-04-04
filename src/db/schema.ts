@@ -5,7 +5,7 @@ export const statusEnum = pgEnum('status', ['ACTIVE', 'INACTIVE']);
 export const transactionTypeEnum = pgEnum('transaction_type', ['INCOME', 'EXPENSE']);
 
 export const users = pgTable('users', {
-  id: uuid('id').defaultRandom().primaryKey(),
+  id: text('id').primaryKey(),
   name: text('name').notNull(),
   email: text('email').unique().notNull(),
   role: roleEnum('role').notNull().default('VIEWER'),
@@ -15,7 +15,7 @@ export const users = pgTable('users', {
 
 export const transactions = pgTable('transactions', {
   id: uuid('id').defaultRandom().primaryKey(),
-  userId: uuid('user_id').references(() => users.id).notNull(),
+  userId: text('user_id').references(() => users.id).notNull(),
   amount: real('amount').notNull(),
   type: transactionTypeEnum('type').notNull(),
   category: text('category').notNull(),
