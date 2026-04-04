@@ -106,7 +106,7 @@ const Dashboard = () => {
             <Activity className="text-accent" />
             <h3 className="text-lg font-bold">Financial Trends (6M)</h3>
           </div>
-          <div className="chart-container h-[400px]">
+          <div className="chart-container" style={{ height: 400 }}>
              <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={summary.monthlyTrends}>
                 <defs>
@@ -134,7 +134,7 @@ const Dashboard = () => {
             <div className="p-2 bg-accent/10 rounded-lg text-accent">📊</div>
             <h3 className="text-lg font-bold">Spending by Category</h3>
           </div>
-          <div className="chart-container h-[400px]">
+          <div className="chart-container" style={{ height: 400 }}>
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={summary.categoryBreakdown}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
