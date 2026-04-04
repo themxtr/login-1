@@ -19,6 +19,8 @@ interface AuthContextType {
   loginWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
   getToken: () => Promise<string | null>;
+  mockRole: string;
+  setMockRole: (role: string) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -26,6 +28,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<FirebaseUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const [mockRole, setMockRole] = useState<string>('ADMIN');
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -51,7 +54,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     signup,
     loginWithGoogle,
     logout,
-    getToken
+    getToken,
+    mockRole,
+    setMockRole
   };
 
   return (

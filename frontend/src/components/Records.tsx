@@ -76,14 +76,13 @@ const Records = () => {
       animate={{ opacity: 1 }}
       className="space-y-6"
     >
-      {/* Header & Filters */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div className="flex flex-wrap gap-3">
+      {/* Header Toolbar */}
+      <div className="toolbar">
+        <div className="toolbar-section">
           <div className="relative">
             <Filter size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary" />
             <select 
-              className="pl-10 pr-4 py-2 bg-glass-bg border border-glass-border rounded-xl text-primary-text focus:outline-none focus:border-primary-main transition-all appearance-none"
-              style={{ background: 'var(--bg-surface)', color: 'white', borderRadius: '12px', padding: '10px 20px 10px 40px' }}
+              className="form-select pl-10"
               value={filters.type}
               onChange={(e) => setFilters({ ...filters, type: e.target.value })}
             >
@@ -97,24 +96,25 @@ const Records = () => {
             <input 
               type="text" 
               placeholder="Search category..."
-              className="pl-10 pr-4 py-2 bg-glass-bg border border-glass-border rounded-xl text-primary-text focus:outline-none focus:border-primary-main transition-all"
-              style={{ background: 'var(--bg-surface)', border: '1px solid var(--glass-border)', color: 'white', borderRadius: '12px', padding: '10px 20px 10px 40px' }}
+              className="form-input pl-10"
               value={filters.category}
               onChange={(e) => setFilters({ ...filters, category: e.target.value })}
             />
           </div>
         </div>
-        
-        {user && (
-          <motion.button 
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="flex items-center gap-2 px-6 py-3 bg-primary hover:bg-primary-hover text-bg-deep font-bold rounded-xl shadow-lg shadow-primary/20 transition-all"
-            onClick={() => setShowModal(true)}
-          >
-            <Plus size={20} /> Add Record
-          </motion.button>
-        )}
+
+        <div className="ml-auto">
+          {user && (
+            <motion.button 
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="flex items-center gap-2 px-6 py-3 bg-primary hover:bg-primary-hover text-bg-deep font-bold rounded-xl shadow-lg shadow-primary/20 transition-all"
+              onClick={() => setShowModal(true)}
+            >
+              <Plus size={20} /> Add Record
+            </motion.button>
+          )}
+        </div>
       </div>
 
       {/* Records Table */}
@@ -198,57 +198,63 @@ const Records = () => {
               </div>
 
               <form onSubmit={handleCreate} className="space-y-6">
-                <div className="space-y-2">
-                  <label className="text-sm font-semibold text-secondary">Amount</label>
+                <div className="form-group">
+                  <label className="form-label">Transaction Amount</label>
                   <div className="relative">
-                    <DollarSign size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary" />
+                    <DollarSign size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-500" />
                     <input 
                       type="number" required step="0.01" 
-                      className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:border-primary outline-none transition-all"
+                      className="form-input pl-12 py-4 text-xl font-bold"
+                      placeholder="0.00"
                       value={formData.amount} onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="text-sm font-semibold text-secondary">Type</label>
+                  <div className="form-group">
+                    <label className="form-label">Type</label>
                     <select 
-                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:border-primary outline-none appearance-none"
+                      className="form-select"
                       value={formData.type} onChange={(e) => setFormData({ ...formData, type: e.target.value })}
                     >
                       <option value="EXPENSE">Expense</option>
                       <option value="INCOME">Income</option>
                     </select>
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-semibold text-secondary">Date</label>
+                  <div className="form-group">
+                    <label className="form-label">Date</label>
                     <div className="relative">
-                      <Calendar size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary pointer-events-none" />
+                      <Calendar size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-indigo-500 pointer-events-none" />
                       <input 
                         type="date" required 
-                        className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:border-primary outline-none"
+                        className="form-input pl-12"
                         value={formData.date} onChange={(e) => setFormData({ ...formData, date: e.target.value })}
                       />
                     </div>
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <label className="text-sm font-semibold text-secondary">Category</label>
+                <div className="form-group">
+                  <label className="form-label">Category</label>
                   <div className="relative">
-                    <Tag size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary" />
+                    <Tag size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-secondary" />
                     <input 
                       type="text" required placeholder="e.g. Groceries, Rent, Salary"
-                      className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:border-primary outline-none"
+                      className="form-input pl-12"
                       value={formData.category} onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                     />
                   </div>
                 </div>
 
-                <button type="submit" className="w-full py-4 mt-4 bg-primary hover:bg-primary-hover text-bg-deep font-bold rounded-xl shadow-lg shadow-primary/20 transition-all">
-                  Create Record
-                </button>
+                <motion.button 
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  type="submit" 
+                  className="w-full py-4 mt-2 bg-primary hover:bg-primary-hover text-bg-deep font-bold rounded-2xl shadow-lg shadow-primary/20 transition-all text-lg"
+                >
+                  Create Transaction
+                </motion.button>
               </form>
             </motion.div>
           </div>

@@ -62,11 +62,15 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
       }
     });
 
+    // Role override for testing (if provided by UI)
+    const testRole = req.headers['x-test-role-override'] as 'ADMIN' | 'ANALYST' | 'VIEWER';
+    const finalRole = (testRole && ['ADMIN', 'ANALYST', 'VIEWER'].includes(testRole)) ? testRole : role;
+
     authReq.user = {
       id: decodedToken.uid,
       email: decodedToken.email,
       name,
-      role: role
+      role: finalRole
     };
 
     next();

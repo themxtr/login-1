@@ -48,6 +48,12 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   if (auth.currentUser) {
     const token = await getIdToken(auth.currentUser);
     headers.set('Authorization', `Bearer ${token}`);
+    
+    // Add Test Role Override from LocalStorage
+    const mockRole = localStorage.getItem('mockRole');
+    if (mockRole) {
+      headers.set('x-test-role-override', mockRole);
+    }
   } else {
     // Legacy fallback for testing if no one is logged in
     headers.set('X-User-Id', 'admin-id');

@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LayoutDashboard, ClipboardList, LogOut, Wallet } from 'lucide-react';
+import { LayoutDashboard, ClipboardList, LogOut, Wallet, Settings as SettingsIcon } from 'lucide-react';
 import Dashboard from './components/Dashboard';
 import Records from './components/Records';
-import RoleSwitcher from './components/RoleSwitcher';
+import Settings from './components/Settings';
 import Login from './components/Login';
 import Signup from './components/Signup';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 
 const AppContent: React.FC = () => {
   const { user, loading, logout } = useAuth();
-  const [currentPage, setCurrentPage] = useState<'dashboard' | 'records'>('dashboard');
+  const [currentPage, setCurrentPage] = useState<'dashboard' | 'records' | 'settings'>('dashboard');
   
   const path = window.location.pathname;
 
@@ -54,6 +54,14 @@ const AppContent: React.FC = () => {
           >
             <ClipboardList size={20} />
             <span>Records</span>
+          </motion.li>
+          <motion.li 
+            whileHover={{ x: 5 }}
+            className={currentPage === 'settings' ? 'active' : ''} 
+            onClick={() => setCurrentPage('settings')}
+          >
+            <SettingsIcon size={20} />
+            <span>Settings</span>
           </motion.li>
         </ul>
 
@@ -109,12 +117,13 @@ const AppContent: React.FC = () => {
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
           >
-            {currentPage === 'dashboard' ? <Dashboard /> : <Records />}
+            {currentPage === 'dashboard' && <Dashboard />}
+            {currentPage === 'records' && <Records />}
+            {currentPage === 'settings' && <Settings />}
           </motion.div>
         </AnimatePresence>
       </main>
 
-      <RoleSwitcher />
     </div>
   );
 };
