@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LayoutDashboard, ClipboardList, LogOut, Wallet, Settings as SettingsIcon } from 'lucide-react';
+import { LayoutDashboard, ClipboardList, LogOut, Settings as SettingsIcon } from 'lucide-react';
 import Dashboard from './components/Dashboard';
 import Records from './components/Records';
 import Settings from './components/Settings';
@@ -33,82 +33,54 @@ const AppContent: React.FC = () => {
   return (
     <div className="app-container">
       <aside className="sidebar">
-        <div className="logo">
-          <div className="logo-icon"><Wallet className="text-emerald-500" /></div>
-          <span>FinanceDash</span>
-        </div>
-        
-        <ul className="nav-links">
-          <motion.li 
-            whileHover={{ x: 5 }}
-            className={currentPage === 'dashboard' ? 'active' : ''} 
-            onClick={() => setCurrentPage('dashboard')}
-          >
-            <LayoutDashboard size={20} />
-            <span>Dashboard</span>
-          </motion.li>
-          <motion.li 
-            whileHover={{ x: 5 }}
-            className={currentPage === 'records' ? 'active' : ''} 
-            onClick={() => setCurrentPage('records')}
-          >
-            <ClipboardList size={20} />
-            <span>Records</span>
-          </motion.li>
-          <motion.li 
-            whileHover={{ x: 5 }}
-            className={currentPage === 'settings' ? 'active' : ''} 
-            onClick={() => setCurrentPage('settings')}
-          >
-            <SettingsIcon size={20} />
-            <span>Settings</span>
-          </motion.li>
-        </ul>
-
-        <div className="sidebar-footer">
-          <div className="flex items-center gap-3 mb-6 p-2 bg-white/5 rounded-xl">
-             <img 
-               src={`https://ui-avatars.com/api/?name=${user.email}&background=10b981&color=fff&bold=true`} 
-               alt="User" 
-               className="w-10 h-10 rounded-lg shadow-lg"
-             />
-             <div className="overflow-hidden">
-               <p className="text-sm font-bold truncate">{user.email?.split('@')[0]}</p>
-               <p className="text-[10px] text-emerald-500 font-bold uppercase tracking-wider">Account Holder</p>
-             </div>
+        <div className="flex-1 flex flex-col min-h-0 bg-white/5 border-r border-glass-border">
+          <div className="p-8">
+            <div className="flex items-center gap-4 mb-12">
+              <img src="/logo.svg" alt="FinanceDash" className="w-10 h-10 shadow-lg shadow-primary/20 rounded-xl" />
+              <span className="text-2xl font-black tracking-tight bg-gradient-to-br from-white to-white/60 bg-clip-text text-transparent">
+                FinanceDash
+              </span>
+            </div>
+            
+            <nav className="space-y-4">
+              {[
+                { id: 'dashboard', icon: <LayoutDashboard size={22} />, label: 'Overview' },
+                { id: 'records', icon: <ClipboardList size={22} />, label: 'Analytics' },
+                { id: 'settings', icon: <SettingsIcon size={22} />, label: 'Settings' },
+              ].map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => setCurrentPage(item.id as any)}
+                  className={`w-full flex items-center gap-4 px-6 py-4 rounded-3xl font-bold transition-all ${
+                    currentPage === item.id 
+                      ? 'bg-primary text-bg-deep shadow-xl shadow-primary/20' 
+                      : 'text-secondary hover:bg-white/5 hover:text-white'
+                  }`}
+                >
+                  {item.icon}
+                  <span className="text-sm tracking-wide">{item.label}</span>
+                </button>
+              ))}
+            </nav>
           </div>
-          <button className="btn-logout flex items-center justify-center gap-2" onClick={logout}>
-            <LogOut size={18} />
-            <span>Sign Out</span>
-          </button>
+          
+          <div className="mt-auto p-8 space-y-4">
+            <div className="p-5 rounded-3xl bg-white/5 border border-glass-border">
+              <p className="text-[10px] text-secondary font-bold uppercase tracking-widest mb-1">PRO PLAN</p>
+              <p className="text-xs font-bold">Unlocking AI Insights</p>
+            </div>
+            <button 
+              onClick={logout}
+              className="w-full flex items-center gap-4 px-6 py-4 rounded-3xl text-secondary hover:bg-rose-500/10 hover:text-rose-500 transition-all font-bold"
+            >
+              <LogOut size={22} />
+              <span className="text-sm tracking-wide">Sign Out</span>
+            </button>
+          </div>
         </div>
       </aside>
 
       <main className="main-content">
-        <div className="top-nav">
-          <motion.h1 
-            key={currentPage}
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="capitalize"
-          >
-            {currentPage}
-          </motion.h1>
-          <div className="flex items-center gap-4">
-             <div className="hidden md:block text-right">
-               <p className="text-sm font-medium">{user.email}</p>
-               <p className="text-xs text-secondary">Verified Session</p>
-             </div>
-             <div className="w-10 h-10 rounded-full border border-emerald-500/20 p-0.5">
-               <img 
-                 src={`https://ui-avatars.com/api/?name=${user.email}&background=10b981&color=fff`} 
-                 alt="Profile" 
-                 className="w-full h-full rounded-full"
-               />
-             </div>
-          </div>
-        </div>
-
         <AnimatePresence mode="wait">
           <motion.div
             key={currentPage}
@@ -123,7 +95,6 @@ const AppContent: React.FC = () => {
           </motion.div>
         </AnimatePresence>
       </main>
-
     </div>
   );
 };

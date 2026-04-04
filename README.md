@@ -1,9 +1,13 @@
-# Finance Dashboard 💰
+# FinanceDash — Smart Wealth Management 💰
 
-A premium, full-stack financial management platform designed for high-end data tracking and visualization. Built with a modern **Glassmorphism** aesthetic, featuring secure multi-role authentication and interactive analytics.
+A premium, full-stack financial management platform designed for high-end data tracking and visualization. Built with a modern **Soft-UI & Glassmorphism** aesthetic, featuring secure multi-role authentication and interactive analytics.
 
 ## 🚀 Live Production
 - **URL**: [https://login-1-opal.vercel.app/](https://login-1-opal.vercel.app/)
+
+## 🎨 UI Inspiration
+- **Design Reference**: [Personal Finance Dashboard by Fireart Studio (Dribbble)](https://dribbble.com/shots/23457131-Personal-Finance-Dashboard)
+- **Aesthetic**: Minimalist Soft-UI with high-impact typography and breathing space.
 
 ## ✨ Key Pillar Features
 

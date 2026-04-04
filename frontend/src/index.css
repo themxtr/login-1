@@ -2,8 +2,8 @@
   /* Premium Palette - Slate/Indigo/Emerald */
   --bg-deep: #0f172a;        /* Slate 900 */
   --bg-surface: #1e293b;     /* Slate 800 */
-  --glass-bg: rgba(30, 41, 59, 0.7);
-  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-bg: rgba(30, 41, 59, 0.45);
+  --glass-border: rgba(255, 255, 255, 0.05);
   
   --primary: #10b981;        /* Emerald 500 */
   --primary-hover: #059669;
@@ -14,12 +14,10 @@
   
   --success: #10b981;
   --error: #ef4444;
-  --warning: #f59e0b;
-  
-  --shadow-lux: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
-  --radius-xl: 24px;
-  --radius-lg: 16px;
-  --radius-md: 12px;
+  --shadow-lux: 0 20px 40px -15px rgba(0, 0, 0, 0.6);
+  --radius-xl: 32px;
+  --radius-lg: 20px;
+  --radius-md: 16px;
   
   --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -31,11 +29,16 @@
 }
 
 body {
-  font-family: 'Inter', -apple-system, sans-serif;
+  font-family: 'Inter', system-ui, sans-serif;
   background-color: var(--bg-deep);
   color: var(--text-primary);
   line-height: 1.5;
   overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, .logo span {
+  font-family: 'Outfit', sans-serif;
 }
 
 .app-container {
@@ -63,8 +66,8 @@ body {
 .logo {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  margin-bottom: 3rem;
+  gap: 1.25rem;
+  margin-bottom: 4rem;
 }
 
 .logo-icon {
@@ -134,11 +137,25 @@ body {
   color: white;
 }
 
-/* Main Content Area */
+/* Trend Badge / Pill */
+.trend-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.trend-pill.up { background: rgba(16, 185, 129, 0.1); color: var(--primary); }
+.trend-pill.down { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+
 .main-content {
   flex: 1;
-  padding: 3rem;
-  max-width: 1400px;
+  padding: 4rem;
+  max-width: 1500px;
   margin: 0 auto;
   width: 100%;
 }
@@ -156,20 +173,19 @@ h1 {
   letter-spacing: -0.02em;
 }
 
-/* Glass Cards */
 .card {
   background: var(--glass-bg);
-  backdrop-filter: blur(12px);
+  backdrop-filter: blur(25px);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-xl);
-  padding: 2rem;
+  padding: 2.5rem;
   box-shadow: var(--shadow-lux);
   transition: var(--transition);
 }
 
 .card:hover {
-  transform: translateY(-5px);
-  border-color: rgba(16, 185, 129, 0.2);
+  transform: translateY(-8px);
+  border-color: rgba(16, 185, 129, 0.15);
 }
 
 /* Dashboard Stats */

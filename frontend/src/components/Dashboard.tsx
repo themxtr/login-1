@@ -1,27 +1,21 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { 
-  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  PieChart, Pie, Cell, Legend, BarChart, Bar
-} from 'recharts';
-import { TrendingUp, ArrowUpRight, ArrowDownRight, Activity, Wallet } from 'lucide-react';
-import { api } from '../services/api';
-import type { DashboardSummary } from '../services/api';
-
-const COLORS = ['#10b981', '#6366f1', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
+import { ArrowUpRight, ArrowDownRight, DollarSign, CreditCard, Activity, TrendingUp } from 'lucide-react';
+import { getDashboardSummary, type DashboardSummary } from '../services/api';
+import { useAuth } from '../contexts/AuthContext';
 
 const Dashboard = () => {
+  const { user } = useAuth();
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
 
   useEffect(() => {
     const fetchSummary = async () => {
       try {
-        const data = await api.getSummary();
+        const data = await getDashboardSummary();
         setSummary(data);
-      } catch (err: any) {
-        setError(err.message || 'Error loading dashboard');
+      } catch (error) {
+        console.error('Failed to fetch summary:', error);
       } finally {
         setLoading(false);
       }
@@ -29,166 +23,144 @@ const Dashboard = () => {
     fetchSummary();
   }, []);
 
-  if (loading) return (
-    <div className="flex items-center justify-center h-64">
-      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-    </div>
-  );
+  const stats = [
+    { 
+      label: 'Total Balance', 
+      value: summary?.netBalance || 0, 
+      icon: <DollarSign size={24} />, 
+      color: 'bg-emerald-500/10 text-emerald-500',
+      trend: '+12.5%', 
+      isUp: true 
+    },
+    { 
+      label: 'Monthly Income', 
+      value: summary?.totalIncome || 0, 
+      icon: <TrendingUp size={24} />, 
+      color: 'bg-blue-500/10 text-blue-500',
+      trend: '+8.2%', 
+      isUp: true 
+    },
+    { 
+      label: 'Monthly Expenses', 
+      value: summary?.totalExpenses || 0, 
+      icon: <CreditCard size={24} />, 
+      color: 'bg-rose-500/10 text-rose-500',
+      trend: '-2.4%', 
+      isDown: true 
+    },
+    { 
+      label: 'Active Budget', 
+      value: 12450, 
+      icon: <Activity size={24} />, 
+      color: 'bg-amber-500/10 text-amber-500',
+      trend: 'On Track', 
+      isNeutral: true 
+    },
+  ];
 
-  if (error) return (
-    <motion.div 
-      initial={{ opacity: 0 }} 
-      animate={{ opacity: 1 }}
-      className="card border-error/20 bg-error/5 p-6 text-error text-center"
-    >
-      Failed to load dashboard: {error}
-    </motion.div>
-  );
-
-  if (!summary) return null;
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
-    <motion.div 
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="space-y-8"
-    >
-      {/* Stats Grid */}
-      <div className="dashboard-grid">
-        <motion.div whileHover={{ scale: 1.02 }} className="card stat-card">
-          <div className="flex justify-between items-start">
-            <div>
-              <p className="stat-label">Net Balance</p>
-              <h3 className="stat-value">${summary.totals.balance.toLocaleString()}</h3>
-            </div>
-            <div className="p-3 bg-primary/10 rounded-xl text-primary">
-              <Wallet size={24} />
-            </div>
-          </div>
-          <p className="text-xs text-secondary mt-4 flex items-center gap-1">
-            <TrendingUp size={14} /> Total accumulated savings
-          </p>
-        </motion.div>
+    <div className="space-y-12">
+      <header className="space-y-2">
+        <motion.h1 
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="text-4xl font-extrabold tracking-tight"
+        >
+          Hi, {user?.email?.split('@')[0]}! 👋
+        </motion.h1>
+        <motion.p 
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.1 }}
+          className="text-secondary text-lg"
+        >
+          Welcome back. Here's what's happening with your accounts today.
+        </motion.p>
+      </header>
 
-        <motion.div whileHover={{ scale: 1.02 }} className="card stat-card">
-          <div className="flex justify-between items-start">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        {stats.map((stat, index) => (
+          <motion.div
+            key={stat.label}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.1 }}
+            className="card"
+          >
+            <div className="flex justify-between items-start mb-6">
+              <div className={`p-3 rounded-2xl ${stat.color}`}>
+                {stat.icon}
+              </div>
+              {stat.trend && (
+                <div className={`trend-pill ${stat.isUp ? 'up' : stat.isDown ? 'down' : 'bg-white/5 text-secondary'}`}>
+                  {stat.isUp ? <ArrowUpRight size={14} /> : stat.isDown ? <ArrowDownRight size={14} /> : null}
+                  {stat.trend}
+                </div>
+              )}
+            </div>
             <div>
-              <p className="stat-label">Total Income</p>
-              <h3 className="stat-value text-primary">${summary.totals.income.toLocaleString()}</h3>
+              <p className="text-secondary font-medium mb-1">{stat.label}</p>
+              <h3 className="text-3xl font-bold tracking-tight">
+                ${stat.value.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+              </h3>
             </div>
-            <div className="p-3 bg-primary/10 rounded-xl text-primary">
-              <ArrowUpRight size={24} />
-            </div>
-          </div>
-          <p className="text-xs text-secondary mt-4">Lifetime earnings</p>
-        </motion.div>
-
-        <motion.div whileHover={{ scale: 1.02 }} className="card stat-card">
-          <div className="flex justify-between items-start">
-            <div>
-              <p className="stat-label">Total Expenses</p>
-              <h3 className="stat-value text-error">${summary.totals.expenses.toLocaleString()}</h3>
-            </div>
-            <div className="p-3 bg-error/10 rounded-xl text-error">
-              <ArrowDownRight size={24} />
-            </div>
-          </div>
-          <p className="text-xs text-secondary mt-4">Lifetime spending</p>
-        </motion.div>
+          </motion.div>
+        ))}
       </div>
 
-      {/* Main Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Trend Area Chart */}
-        <div className="card h-full">
-          <div className="flex items-center gap-3 mb-6">
-            <Activity className="text-accent" />
-            <h3 className="text-lg font-bold">Financial Trends (6M)</h3>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="lg:col-span-2 card h-[450px] flex items-center justify-center border-dashed"
+        >
+          <div className="text-center space-y-4">
+            <div className="bg-primary/10 p-4 rounded-full inline-block">
+              <TrendingUp size={32} className="text-primary" />
+            </div>
+            <h4 className="text-xl font-bold">Analytics Engine Initializing</h4>
+            <p className="text-secondary max-w-sm">
+              We're processing your transaction patterns to provide deep wealth insights.
+            </p>
           </div>
-          <div className="chart-container" style={{ height: 400 }}>
-             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={summary.monthlyTrends}>
-                <defs>
-                  <linearGradient id="colorIncome" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
-                <XAxis dataKey="month" stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
-                <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
-                <Tooltip 
-                  contentStyle={{ backgroundColor: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }}
-                  itemStyle={{ color: '#fff' }}
-                />
-                <Area type="monotone" dataKey="total" stroke="#10b981" fillOpacity={1} fill="url(#colorIncome)" />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
+        </motion.div>
 
-        {/* Category breakdown bar chart */}
-        <div className="card h-full">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="p-2 bg-accent/10 rounded-lg text-accent">📊</div>
-            <h3 className="text-lg font-bold">Spending by Category</h3>
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          className="card overflow-hidden"
+        >
+          <h4 className="text-xl font-bold mb-6">Recent Activity</h4>
+          <div className="space-y-6">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className="flex items-center gap-4 group cursor-pointer">
+                <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center font-bold text-secondary group-hover:bg-primary/20 group-hover:text-primary transition-all">
+                  T{i}
+                </div>
+                <div className="flex-1">
+                  <p className="font-bold">Transaction {i}</p>
+                  <p className="text-xs text-secondary">Oct {10 + i}, 2023</p>
+                </div>
+                <div className="text-right">
+                  <p className="font-bold">-$120.00</p>
+                  <p className="text-[10px] text-success font-bold uppercase tracking-widest">Success</p>
+                </div>
+              </div>
+            ))}
           </div>
-          <div className="chart-container" style={{ height: 400 }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={summary.categoryBreakdown}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
-                <XAxis dataKey="category" stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
-                <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
-                <Tooltip 
-                   contentStyle={{ backgroundColor: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }}
-                />
-                <Bar dataKey="totalAmount" radius={[8, 8, 0, 0]}>
-                  {summary.categoryBreakdown.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
+        </motion.div>
       </div>
-
-      {/* Recent Activity Table (Compact) */}
-      <div className="card">
-        <h3 className="text-lg font-bold mb-6">Recent Activity</h3>
-        <div className="data-table-container">
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Category</th>
-                <th>Status</th>
-                <th className="text-right">Amount</th>
-              </tr>
-            </thead>
-            <tbody>
-              {summary.recentActivity.map((t: any) => (
-                <motion.tr 
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  key={t.id}
-                >
-                  <td>{t.category}</td>
-                  <td>
-                    <span className={`badge ${t.type === 'INCOME' ? 'badge-income' : 'badge-expense'}`}>
-                      {t.type}
-                    </span>
-                  </td>
-                  <td className={`text-right font-bold ${t.type === 'INCOME' ? 'text-primary' : 'text-error'}`}>
-                    {t.type === 'INCOME' ? '+' : '-'}${t.amount.toLocaleString()}
-                  </td>
-                </motion.tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </motion.div>
+    </div>
   );
 };
 

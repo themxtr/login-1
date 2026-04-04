@@ -24,6 +24,9 @@ export interface Transaction {
 }
 
 export interface DashboardSummary {
+  netBalance: number;
+  totalIncome: number;
+  totalExpenses: number;
   totals: {
     income: number;
     expenses: number;
@@ -97,3 +100,10 @@ export const api = {
     method: 'DELETE',
   }),
 };
+export const {
+  getSummary: getDashboardSummary,
+  getRecords,
+  createRecord,
+  updateRecord,
+  deleteRecord
+} = api;
