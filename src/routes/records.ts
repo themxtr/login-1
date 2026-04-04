@@ -23,8 +23,8 @@ const filterSchema = zod.object({
   type: zod.preprocess((val) => val === '' ? undefined : val, zod.enum(['INCOME', 'EXPENSE']).optional()),
 });
 
-// GET /records: Analyst and Admin can view records
-router.get('/', rbacMiddleware(['ANALYST', 'ADMIN']), async (req: AuthenticatedRequest, res: Response) => {
+// GET /records: All roles can view records, but management is restricted
+router.get('/', rbacMiddleware(['VIEWER', 'ANALYST', 'ADMIN']), async (req: AuthenticatedRequest, res: Response) => {
   try {
     const filters = filterSchema.parse(req.query);
     const conditions = [];

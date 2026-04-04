@@ -43,13 +43,13 @@ router.get('/summary', rbacMiddleware(['VIEWER', 'ANALYST', 'ADMIN']), async (re
       .orderBy(desc(transactions.date))
       .limit(10);
 
-    // 4. Monthly Trends (Last 6 Months) — PostgreSQL date functions
+    // 4. Monthly Trends (Last 6 Months)
     const sixMonthsAgo = new Date();
-    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 5); // To include current month
     sixMonthsAgo.setDate(1);
+    sixMonthsAgo.setHours(0, 0, 0, 0);
 
     const monthlyTrends = await db.select({
-      // PostgreSQL: to_char for date formatting (replaces SQLite strftime)
       month: sql<string>`to_char(${transactions.date}, 'YYYY-MM')`.as('month_label'),
       type: transactions.type,
       total: sum(transactions.amount).as('monthly_total'),
@@ -67,13 +67,16 @@ router.get('/summary', rbacMiddleware(['VIEWER', 'ANALYST', 'ADMIN']), async (re
       },
       categoryBreakdown: categoryBreakdown.map(c => ({
         category: c.category,
-        totalAmount: Number(c.totalAmount)
+        totalAmount: Number(c.totalAmount || 0)
       })),
-      recentActivity,
+      recentActivity: recentActivity.map(r => ({
+        ...r,
+        amount: Number(r.amount)
+      })),
       monthlyTrends: monthlyTrends.map(t => ({
         month: t.month,
         type: t.type,
-        total: Number(t.total)
+        total: Number(t.total || 0)
       })),
     });
   } catch (err) {
