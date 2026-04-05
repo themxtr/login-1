@@ -9,6 +9,7 @@ import { rbacMiddleware } from '../middleware/rbac';
 const router = Router();
 
 const createUserSchema = z.object({
+  id: z.string().optional(),
   name: z.string().min(1),
   email: z.string().email(),
   role: z.enum(['ADMIN', 'ANALYST', 'VIEWER']).default('VIEWER'),
@@ -36,7 +37,11 @@ router.get('/', async (req: AuthenticatedRequest, res: Response) => {
 router.post('/', async (req: AuthenticatedRequest, res: Response) => {
   try {
     const body = createUserSchema.parse(req.body);
-    const [newUser] = await db.insert(users).values(body).returning();
+    const userId = body.id || `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const [newUser] = await db.insert(users).values({
+      ...body,
+      id: userId,
+    } as any).returning();
     res.status(201).json(newUser);
   } catch (err) {
     if (err instanceof z.ZodError) {
