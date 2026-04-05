@@ -1,7 +1,7 @@
 import { Router, Response } from 'express';
 import { db } from '../db/client';
 import { transactions } from '../db/schema';
-import { gte, sql, eq, desc, sum } from 'drizzle-orm';
+import { gte, lt, sql, eq, desc, sum, and } from 'drizzle-orm';
 import { AuthenticatedRequest } from '../middleware/auth';
 import { rbacMiddleware } from '../middleware/rbac';
 
@@ -18,7 +18,7 @@ router.get('/summary', rbacMiddleware(['VIEWER', 'ANALYST', 'ADMIN']), async (re
     const firstDayPrevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
     const firstDayNextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const sevenDaysAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
 
     // 1. Basic Totals (All time)
     const incomeResult = await db.select({ total: sum(transactions.amount) }).from(transactions).where(eq(transactions.type, 'INCOME'));
@@ -37,15 +37,37 @@ router.get('/summary', rbacMiddleware(['VIEWER', 'ANALYST', 'ADMIN']), async (re
 
     // 2. Current Month Totals
     const currentMonthIncome = await db.select({ total: sum(transactions.amount) })
-      .from(transactions).where(sql`${transactions.type} = 'INCOME' AND ${transactions.date} >= ${firstDayCurrentMonth} AND ${transactions.date} < ${firstDayNextMonth}`);
+      .from(transactions)
+      .where(and(
+        eq(transactions.type, 'INCOME'),
+        gte(transactions.date, firstDayCurrentMonth),
+        lt(transactions.date, firstDayNextMonth)
+      ));
+
     const currentMonthExpense = await db.select({ total: sum(transactions.amount) })
-      .from(transactions).where(sql`${transactions.type} = 'EXPENSE' AND ${transactions.date} >= ${firstDayCurrentMonth} AND ${transactions.date} < ${firstDayNextMonth}`);
+      .from(transactions)
+      .where(and(
+        eq(transactions.type, 'EXPENSE'),
+        gte(transactions.date, firstDayCurrentMonth),
+        lt(transactions.date, firstDayNextMonth)
+      ));
       
     // 3. Previous Month Totals
     const prevMonthIncome = await db.select({ total: sum(transactions.amount) })
-      .from(transactions).where(sql`${transactions.type} = 'INCOME' AND ${transactions.date} >= ${firstDayPrevMonth} AND ${transactions.date} < ${firstDayCurrentMonth}`);
+      .from(transactions)
+      .where(and(
+        eq(transactions.type, 'INCOME'),
+        gte(transactions.date, firstDayPrevMonth),
+        lt(transactions.date, firstDayCurrentMonth)
+      ));
+
     const prevMonthExpense = await db.select({ total: sum(transactions.amount) })
-      .from(transactions).where(sql`${transactions.type} = 'EXPENSE' AND ${transactions.date} >= ${firstDayPrevMonth} AND ${transactions.date} < ${firstDayCurrentMonth}`);
+      .from(transactions)
+      .where(and(
+        eq(transactions.type, 'EXPENSE'),
+        gte(transactions.date, firstDayPrevMonth),
+        lt(transactions.date, firstDayCurrentMonth)
+      ));
 
     const cInc = Number(currentMonthIncome[0]?.total || 0);
     const cExp = Number(currentMonthExpense[0]?.total || 0);
@@ -57,10 +79,19 @@ router.get('/summary', rbacMiddleware(['VIEWER', 'ANALYST', 'ADMIN']), async (re
     const balanceChange = (pInc - pExp) === 0 ? 0 : (((cInc - cExp) - (pInc - pExp)) / (pInc - pExp)) * 100;
 
     // 4. Time splits for expenses (Daily, Weekly)
-    const dailyExpenseResult = await db.select({ total: sum(transactions.amount) }).from(transactions)
-      .where(sql`${transactions.type} = 'EXPENSE' AND ${transactions.date} >= ${today}`);
-    const weeklyExpenseResult = await db.select({ total: sum(transactions.amount) }).from(transactions)
-      .where(sql`${transactions.type} = 'EXPENSE' AND ${transactions.date} >= ${sevenDaysAgo}`);
+    const dailyExpenseResult = await db.select({ total: sum(transactions.amount) })
+      .from(transactions)
+      .where(and(
+        eq(transactions.type, 'EXPENSE'),
+        gte(transactions.date, today)
+      ));
+
+    const weeklyExpenseResult = await db.select({ total: sum(transactions.amount) })
+      .from(transactions)
+      .where(and(
+        eq(transactions.type, 'EXPENSE'),
+        gte(transactions.date, sevenDaysAgo)
+      ));
 
     const dailyExpense = Number(dailyExpenseResult[0]?.total || 0);
     const weeklyExpense = Number(weeklyExpenseResult[0]?.total || 0);
