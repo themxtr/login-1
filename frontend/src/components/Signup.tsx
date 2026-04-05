@@ -54,88 +54,95 @@ const Signup: React.FC = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: 'easeOut' }}
-        className="auth-card glass"
+        className="auth-card"
       >
-        <div className="auth-logo">
-           <div className="inline-flex items-center justify-center p-3 bg-indigo-500/20 rounded-2xl mb-6">
-              <ShieldCheck size={32} className="text-indigo-400" />
+        <div className="auth-header">
+           <div style={{ display: 'inline-flex', padding: '0.75rem', background: 'rgba(22, 163, 74, 0.1)', borderRadius: '1rem', color: '#16a34a', marginBottom: '1.5rem' }}>
+              <ShieldCheck size={32} />
            </div>
+          
+          <h2>Create Account</h2>
+          <p>Join the elite financial tracking community</p>
         </div>
         
-        <h2>Create Account</h2>
-        <p className="auth-subtitle">Join the elite financial tracking community</p>
-        
-        {error && <div className="error-badge">{error}</div>}
+        {error && <div className="auth-error" style={{ marginBottom: '1.5rem' }}>{error}</div>}
 
-        <motion.button 
-          whileHover={{ scale: 1.01 }}
-          whileTap={{ scale: 0.98 }}
-          className="btn-google" 
-          onClick={handleGoogle}
-          disabled={loading}
-          type="button"
-        >
-          <GoogleIcon />
-          <span>Continue with Google</span>
-        </motion.button>
-
-        <div className="auth-divider">
-          <span>or sign up with email</span>
-        </div>
-        
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label>Email Address</label>
-            <input 
-              type="email" 
-              value={email} 
-              onChange={(e) => setEmail(e.target.value)} 
-              placeholder="name@example.com"
-              required 
-            />
-          </div>
-          <div className="form-group">
-            <label>Password</label>
-            <input 
-              type="password" 
-              value={password} 
-              onChange={(e) => setPassword(e.target.value)} 
-              placeholder="••••••••"
-              required 
-            />
-          </div>
-          <div className="form-group">
-            <label>Confirm Password</label>
-            <input 
-              type="password" 
-              value={confirmPassword} 
-              onChange={(e) => setConfirmPassword(e.target.value)} 
-              placeholder="••••••••"
-              required 
-            />
-          </div>
+        <div className="auth-form">
           <motion.button 
             whileHover={{ scale: 1.01 }}
             whileTap={{ scale: 0.98 }}
-            type="submit" 
-            className="btn btn-primary btn-block flex items-center justify-center gap-2" 
+            onClick={handleGoogle}
             disabled={loading}
-            style={{ background: 'linear-gradient(135deg, #6366f1 0%, #4338ca 100%)', boxShadow: '0 4px 15px rgba(99, 102, 241, 0.4)' }}
+            type="button"
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', width: '100%', padding: '0.75rem', background: 'white', border: '1px solid #e5e7eb', borderRadius: '0.75rem', fontWeight: 600, cursor: 'pointer', color: '#374151' }}
           >
-            {loading ? (
-              <div className="animate-spin h-5 w-5 border-2 border-white/30 border-t-white rounded-full" />
-            ) : (
-              <>
-                <UserPlus size={18} />
-                <span>Create Account</span>
-              </>
-            )}
+            <GoogleIcon />
+            <span>Continue with Google</span>
           </motion.button>
-        </form>
-        
-        <p className="auth-footer">
-          Already have an account? <a href="/login">Sign in</a>
-        </p>
+
+          <div style={{ display: 'flex', alignItems: 'center', margin: '0.5rem 0' }}>
+            <div style={{ flex: 1, height: '1px', background: '#e5e7eb' }}></div>
+            <span style={{ padding: '0 1rem', fontSize: '0.85rem', color: '#6b7280', fontWeight: 500 }}>or sign up with email</span>
+            <div style={{ flex: 1, height: '1px', background: '#e5e7eb' }}></div>
+          </div>
+          
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+            <div className="form-group">
+              <label className="form-label">Email Address</label>
+              <input 
+                type="email" 
+                className="form-input"
+                value={email} 
+                onChange={(e) => setEmail(e.target.value)} 
+                placeholder="name@example.com"
+                required 
+              />
+            </div>
+            <div className="form-group">
+              <label className="form-label">Password</label>
+              <input 
+                type="password" 
+                className="form-input"
+                value={password} 
+                onChange={(e) => setPassword(e.target.value)} 
+                placeholder="••••••••"
+                required 
+              />
+            </div>
+            <div className="form-group">
+              <label className="form-label">Confirm Password</label>
+              <input 
+                type="password" 
+                className="form-input"
+                value={confirmPassword} 
+                onChange={(e) => setConfirmPassword(e.target.value)} 
+                placeholder="••••••••"
+                required 
+              />
+            </div>
+            <motion.button 
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.98 }}
+              type="submit" 
+              className="btn-primary" 
+              disabled={loading}
+              style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', marginTop: '0.5rem' }}
+            >
+              {loading ? (
+                <div style={{ width: '20px', height: '20px', border: '2px solid rgba(255,255,255,0.3)', borderTopColor: 'white', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+              ) : (
+                <>
+                  <UserPlus size={18} />
+                  <span>Create Account</span>
+                </>
+              )}
+            </motion.button>
+          </form>
+          
+          <p style={{ textAlign: 'center', fontSize: '0.9rem', color: '#6b7280', marginTop: '1rem' }}>
+            Already have an account? <a href="/login" className="auth-link">Sign in</a>
+          </p>
+        </div>
       </motion.div>
     </div>
   );

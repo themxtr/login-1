@@ -10,7 +10,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 
 const AppContent: React.FC = () => {
   const { user, loading, logout, mockRole, setMockRole } = useAuth();
-  const [currentPage, setCurrentPage] = useState<'dashboard' | 'wallet' | 'analytics' | 'transaction' | 'settings'>('dashboard');
+  const [currentPage, setCurrentPage] = useState<'dashboard' | 'wallet' | 'analytics' | 'transaction' | 'help' | 'settings' | 'report'>('dashboard');
   const [showRoleMenu, setShowRoleMenu] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   
@@ -18,11 +18,9 @@ const AppContent: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50 text-emerald-600">
-        <div className="text-center space-y-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto"></div>
-          <p className="font-semibold tracking-widest uppercase text-sm">Loading...</p>
-        </div>
+      <div className="app-loading">
+        <div className="spinner"></div>
+        <p className="font-semibold tracking-widest uppercase text-sm">Loading...</p>
       </div>
     );
   }
@@ -32,7 +30,6 @@ const AppContent: React.FC = () => {
     return <Login />;
   }
 
-  // Generate a friendly name from email or fall back to 'Jaylon' to match mockup
   const displayName = user.email ? user.email.split('@')[0].replace(/[^a-zA-Z]/g, ' ') : 'Jaylon';
   const capitalizedName = displayName.charAt(0).toUpperCase() + displayName.slice(1);
 
@@ -47,11 +44,11 @@ const AppContent: React.FC = () => {
             </div>
           </div>
           
-          <div className="relative">
-            <div className="role-switcher" onClick={() => setShowRoleMenu(!showRoleMenu)}>
+          <div className="dropdown-container">
+            <button className="dropdown-trigger" onClick={() => setShowRoleMenu(!showRoleMenu)}>
               {mockRole.charAt(0) + mockRole.slice(1).toLowerCase()} account 
               <ChevronDown size={14} className="text-gray-400" />
-            </div>
+            </button>
             
             <AnimatePresence>
               {showRoleMenu && (
@@ -59,13 +56,13 @@ const AppContent: React.FC = () => {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95 }}
-                  className="absolute top-full mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 py-2 z-50"
+                  className="dropdown-menu align-left"
                 >
                   {['ADMIN', 'ANALYST', 'VIEWER'].map((role) => (
                     <button 
                       key={role}
                       onClick={() => { setMockRole(role); setShowRoleMenu(false); }}
-                      className={`w-full text-left px-4 py-2 text-sm font-medium hover:bg-gray-50 flex items-center justify-between ${mockRole === role ? 'text-emerald-600' : 'text-gray-700'}`}
+                      className={`dropdown-item ${mockRole === role ? 'active' : ''}`}
                     >
                       {role.charAt(0) + role.slice(1).toLowerCase()}
                       {mockRole === role && <CheckSquare size={14} />}
@@ -83,27 +80,29 @@ const AppContent: React.FC = () => {
           <div className="search-bar">
             <Search size={18} className="text-gray-400" />
             <input type="text" placeholder="Search..." />
-            <div className="text-xs text-gray-400 font-mono px-2 py-1 bg-white rounded border border-gray-200">⌘F</div>
+            <div className="search-hint">⌘F</div>
           </div>
         </div>
 
         <div className="nav-right">
-          <button className="flex items-center gap-2 text-gray-500 hover:text-gray-900 font-semibold text-sm transition-colors">
-            <MessageSquare size={18} /> Chat
-          </button>
-          <button className="text-gray-500 hover:text-gray-900 transition-colors">
-            <Bell size={20} />
-          </button>
+          <div className="nav-action-group">
+            <button className="nav-icon-btn">
+              <MessageSquare size={18} /> Chat
+            </button>
+            <button className="nav-icon-btn">
+              <Bell size={20} />
+            </button>
+          </div>
           
-          <div className="relative">
+          <div className="dropdown-container">
             <div 
-              className="flex items-center gap-3 pl-4 border-l border-gray-200 cursor-pointer"
+              className="profile-group"
               onClick={() => setShowProfileMenu(!showProfileMenu)}
             >
               <img src={`https://ui-avatars.com/api/?name=${capitalizedName}&background=16a34a&color=fff`} className="avatar" alt="Avatar" />
-              <div className="hidden sm:block">
-                <p className="text-sm font-bold text-gray-900 leading-tight">{capitalizedName} Baptista</p>
-                <p className="text-xs text-gray-500">@{displayName.toLowerCase()}baptista</p>
+              <div className="profile-info">
+                <p className="profile-name">{capitalizedName} Baptista</p>
+                <p className="profile-handle">@{displayName.toLowerCase()}baptista</p>
               </div>
               <ChevronDown size={14} className="text-gray-400" />
             </div>
@@ -114,11 +113,11 @@ const AppContent: React.FC = () => {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95 }}
-                  className="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 py-2 z-50"
+                  className="dropdown-menu"
                 >
                   <button 
                     onClick={logout}
-                    className="w-full text-left px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 flex items-center gap-2"
+                    className="dropdown-item danger-text"
                   >
                     <LogOut size={16} /> Sign out
                   </button>
@@ -132,17 +131,17 @@ const AppContent: React.FC = () => {
       <main className="main-content">
         <div className="page-header">
           <div>
-            <h1>Good morning, {capitalizedName}</h1>
-            <p>This is your finance report</p>
+            <h1 className="page-title">Good morning, {capitalizedName}</h1>
+            <p className="page-subtitle">This is your finance report</p>
           </div>
-          <ul className="tabs hidden sm:flex">
+          <ul className="tabs">
             <li className={currentPage === 'dashboard' ? 'active' : ''} onClick={() => setCurrentPage('dashboard')}>Overview</li>
             <li className={currentPage === 'wallet' ? 'active' : ''} onClick={() => setCurrentPage('wallet')}>Wallet</li>
             <li className={currentPage === 'analytics' ? 'active' : ''} onClick={() => setCurrentPage('analytics')}>Analytics</li>
             <li className={currentPage === 'transaction' ? 'active' : ''} onClick={() => setCurrentPage('transaction')}>Transaction</li>
-            <li className="text-gray-400">Help</li>
+            <li className={currentPage === 'help' ? 'active' : ''} onClick={() => setCurrentPage('help')}>Help</li>
             <li className={currentPage === 'settings' ? 'active' : ''} onClick={() => setCurrentPage('settings')}>Settings</li>
-            <li className="text-gray-400">Report</li>
+            <li className={currentPage === 'report' ? 'active' : ''} onClick={() => setCurrentPage('report')}>Report</li>
           </ul>
         </div>
 
@@ -157,8 +156,10 @@ const AppContent: React.FC = () => {
             {currentPage === 'dashboard' && <Dashboard />}
             {currentPage === 'transaction' && <Records />}
             {currentPage === 'settings' && <Settings />}
-            {(currentPage === 'wallet' || currentPage === 'analytics') && (
-              <div className="py-20 text-center text-gray-400">Module coming soon</div>
+            {(currentPage === 'wallet' || currentPage === 'analytics' || currentPage === 'report' || currentPage === 'help') && (
+              <div className="module-placeholder">
+                <p>Module coming soon: {currentPage.charAt(0).toUpperCase() + currentPage.slice(1)}</p>
+              </div>
             )}
           </motion.div>
         </AnimatePresence>
