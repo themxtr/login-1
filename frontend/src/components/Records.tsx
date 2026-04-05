@@ -5,7 +5,10 @@ import { api, type Transaction } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 
 const Records = () => {
-  const { user } = useAuth();
+  const { user, mockRole } = useAuth();
+  const isReadOnly = mockRole === 'VIEWER';
+  const roleLabel = mockRole.charAt(0) + mockRole.slice(1).toLowerCase();
+
   const [records, setRecords] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -23,7 +26,7 @@ const Records = () => {
     try {
       setLoading(true);
       const data = await api.getRecords(filters as any);
-      setRecords(data);
+      setRecords(data || []);
     } catch (err: any) {
       console.error(err.message);
     } finally {
@@ -37,6 +40,8 @@ const Records = () => {
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isReadOnly) return;
+
     const amount = parseFloat(formData.amount);
     if (isNaN(amount) || amount <= 0) return;
 
@@ -56,17 +61,18 @@ const Records = () => {
       });
       fetchRecords();
     } catch (err: any) {
-      alert(err.message);
+      alert(`Asset creation failed: ${err.message}`);
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this record?')) return;
+    if (isReadOnly) return;
+    if (!confirm('Are you sure you want to delete this asset record?')) return;
     try {
       await api.deleteRecord(id);
       fetchRecords();
     } catch (err: any) {
-      alert(err.message);
+      alert(`Deletion failed: ${err.message}`);
     }
   };
 
@@ -74,29 +80,40 @@ const Records = () => {
     <motion.div 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="space-y-6"
+      className="space-y-8"
     >
+      <div className="flex justify-between items-end">
+        <div>
+          <h1 className="mb-2">Asset Ledger</h1>
+          <p className="text-secondary text-lg">Detailed history of all indexed transactions</p>
+        </div>
+        <div className="flex items-center gap-3 px-4 py-2 bg-white/5 rounded-xl border border-glass-border">
+          <div className={`w-2 h-2 rounded-full ${isReadOnly ? 'bg-amber-500' : 'bg-emerald-500'}`} />
+          <span className="text-xs font-bold uppercase tracking-wider text-secondary">Perspective: {roleLabel}</span>
+        </div>
+      </div>
+
       {/* Header Toolbar */}
-      <div className="toolbar">
+      <div className="toolbar bg-glass-bg backdrop-blur-xl p-4 rounded-3xl border border-glass-border shadow-xl">
         <div className="toolbar-section">
-          <div className="relative">
-            <Filter size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary" />
+          <div className="relative group">
+            <Filter size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-secondary group-focus-within:text-primary transition-colors" />
             <select 
-              className="form-select pl-10"
+              className="form-select pl-12 bg-white/5 border-transparent focus:border-primary/30"
               value={filters.type}
               onChange={(e) => setFilters({ ...filters, type: e.target.value })}
             >
               <option value="">All Types</option>
-              <option value="INCOME">Income</option>
-              <option value="EXPENSE">Expense</option>
+              <option value="INCOME">Income / Revenue</option>
+              <option value="EXPENSE">Expense / Burn</option>
             </select>
           </div>
-          <div className="relative">
-            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary" />
+          <div className="relative group">
+            <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-secondary group-focus-within:text-primary transition-colors" />
             <input 
               type="text" 
-              placeholder="Search category..."
-              className="form-input pl-10"
+              placeholder="Search assets..."
+              className="form-input pl-12 bg-white/5 border-transparent focus:border-primary/30"
               value={filters.category}
               onChange={(e) => setFilters({ ...filters, category: e.target.value })}
             />
@@ -106,12 +123,14 @@ const Records = () => {
         <div className="ml-auto">
           {user && (
             <motion.button 
-              whileHover={{ y: -2 }}
-              whileTap={{ scale: 0.98 }}
-              className="btn-primary"
-              onClick={() => setShowModal(true)}
+              disabled={isReadOnly}
+              whileHover={isReadOnly ? {} : { y: -2 }}
+              whileTap={isReadOnly ? {} : { scale: 0.98 }}
+              className={`btn-primary flex items-center gap-2 ${isReadOnly ? 'opacity-50 cursor-not-allowed grayscale' : ''}`}
+              onClick={() => !isReadOnly && setShowModal(true)}
             >
-              <Plus size={20} className="inline mr-2" /> Add Transaction
+              <Plus size={20} /> 
+              {isReadOnly ? 'Read Only Mode' : 'New Asset Record'}
             </motion.button>
           )}
         </div>

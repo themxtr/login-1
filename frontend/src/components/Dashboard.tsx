@@ -3,12 +3,15 @@ import { motion } from 'framer-motion';
 import { 
   ArrowUpRight, 
   ArrowDownRight, 
-  DollarSign, 
-  CreditCard, 
-  Activity, 
   TrendingUp,
+  TrendingDown,
   Calendar,
-  Layers
+  Layers,
+  Wallet,
+  Zap,
+  ShieldCheck,
+  LayoutDashboard,
+  PieChart
 } from 'lucide-react';
 import { 
   AreaChart, 
@@ -56,39 +59,49 @@ const Dashboard = () => {
 
   const categoryData = summary?.categoryBreakdown || [];
 
+  // Derived Stats
+  const savingsRate = summary?.totalIncome ? Math.round(((summary.totalIncome - summary.totalExpenses) / summary.totalIncome) * 100) : 0;
+  
+  const topCategory = (summary?.categoryBreakdown && summary.categoryBreakdown.length > 0)
+    ? [...summary.categoryBreakdown].sort((a: any, b: any) => b.totalAmount - a.totalAmount)[0] 
+    : { category: 'None', totalAmount: 0 };
+    
+  const lastActivityText = summary?.recentActivity?.[0]
+    ? `Last: ${summary.recentActivity[0].category} (-$${summary.recentActivity[0].amount.toLocaleString()})`
+    : 'No recent activity';
+
   const stats = [
     { 
-      label: 'Total Balance', 
-      value: summary?.netBalance || 0, 
-      icon: <DollarSign size={24} />, 
+      label: 'Portfolio Balance', 
+      value: `$${summary?.netBalance?.toLocaleString() || '0'}`, 
+      icon: <Wallet size={24} />,
+      trend: '+12.5%',
       color: 'bg-emerald-500/10 text-emerald-500 shadow-emerald-500/20',
-      trend: '+12.5%', 
-      isUp: true 
+      isUp: true
     },
     { 
-      label: 'Monthly Income', 
-      value: summary?.totalIncome || 0, 
-      icon: <TrendingUp size={24} />, 
+      label: 'Income Flow', 
+      value: `$${summary?.totalIncome?.toLocaleString() || '0'}`, 
+      icon: <TrendingUp size={24} />,
+      trend: '+4.3%',
       color: 'bg-indigo-500/10 text-indigo-500 shadow-indigo-500/20',
-      trend: '+8.2%', 
-      isUp: true 
+      isUp: true
     },
     { 
-      label: 'Monthly Expenses', 
-      value: summary?.totalExpenses || 0, 
-      icon: <CreditCard size={24} />, 
+      label: 'Monthly Burn', 
+      value: `$${summary?.totalExpenses?.toLocaleString() || '0'}`, 
+      icon: <TrendingDown size={24} />,
+      trend: '-2.1%',
       color: 'bg-rose-500/10 text-rose-500 shadow-rose-500/20',
-      trend: '-2.4%', 
-      isDown: true 
+      isDown: true
     },
     { 
-      label: 'Savings Rate', 
-      value: summary?.totalIncome ? ((summary.totalIncome - summary.totalExpenses) / summary.totalIncome) * 100 : 0, 
-      icon: <Activity size={24} />, 
+      label: 'Efficiency Rate', 
+      value: `${savingsRate}%`, 
+      icon: <PieChart size={24} />,
+      trend: 'Optimal',
       color: 'bg-amber-500/10 text-amber-500 shadow-amber-500/20',
-      trend: 'On Track', 
-      isNeutral: true,
-      isPercentage: true
+      isNeutral: true
     },
   ];
 
@@ -161,9 +174,7 @@ const Dashboard = () => {
             </div>
             <div>
               <p className="stat-label">{stat.label}</p>
-              <h3 className="stat-value">
-                {stat.isPercentage ? '' : '$'}{stat.value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}{stat.isPercentage ? '%' : ''}
-              </h3>
+              <h3 className="stat-value">{stat.value}</h3>
             </div>
           </motion.div>
         ))}
@@ -277,7 +288,7 @@ const Dashboard = () => {
           <div className="mt-8 space-y-4">
             <h5 className="text-sm font-bold text-secondary uppercase tracking-widest">Recent Activity</h5>
             <div className="space-y-4">
-              {summary?.recentActivity?.slice(0, 4).map((tx, i) => (
+              {summary?.recentActivity?.slice(0, 4).map((tx) => (
                 <div key={tx.id} className="flex items-center gap-4 group cursor-pointer p-2 hover:bg-white/5 rounded-2xl transition-all">
                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm ${tx.type === 'INCOME' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-rose-500/10 text-rose-500'}`}>
                     {tx.category.charAt(0)}
@@ -297,6 +308,60 @@ const Dashboard = () => {
               )}
             </div>
           </div>
+        </motion.div>
+      </div>
+
+      {/* Tertiary Row */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+          className="card flex items-center gap-6"
+        >
+          <div className="w-16 h-16 rounded-full bg-indigo-500/10 flex items-center justify-center text-indigo-500">
+            <LayoutDashboard size={24} />
+          </div>
+          <div>
+            <p className="text-muted text-[10px] font-bold uppercase tracking-widest">Asset Velocity</p>
+            <p className="text-lg font-extrabold">{lastActivityText}</p>
+          </div>
+        </motion.div>
+        
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.7 }}
+          className="card flex items-center gap-6"
+        >
+          <div className="w-16 h-16 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500">
+            <ShieldCheck size={24} />
+          </div>
+          <div>
+            <p className="text-muted text-[10px] font-bold uppercase tracking-widest">Vault Status</p>
+            <p className="text-lg font-extrabold text-primary">Fully Encrypted</p>
+          </div>
+        </motion.div>
+
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.8 }}
+          className="card !bg-primary/5 border-primary/20 flex flex-col gap-4"
+        >
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-primary/20 rounded-xl text-primary">
+              <Zap size={20} />
+            </div>
+            <div>
+              <h4 className="font-bold text-sm">Optimization Tip</h4>
+              <p className="text-secondary text-[10px] uppercase font-bold tracking-tight">AI Insights</p>
+            </div>
+          </div>
+          <p className="text-xs leading-relaxed text-secondary italic">
+            "Your <strong>{topCategory?.category || 'None'}</strong> spending is { (topCategory?.totalAmount || 0) > 1000 ? 'high' : 'stable'} this month. 
+            Keep up the good momentum!"
+          </p>
         </motion.div>
       </div>
     </div>

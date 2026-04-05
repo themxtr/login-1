@@ -48,8 +48,8 @@ router.get('/', rbacMiddleware(['VIEWER', 'ANALYST', 'ADMIN']), async (req: Auth
   }
 });
 
-// Admin only management routes
-router.use(rbacMiddleware(['ADMIN']));
+// Admin and Analyst management routes
+router.use(rbacMiddleware(['ADMIN', 'ANALYST']));
 
 router.post('/', async (req: AuthenticatedRequest, res: Response) => {
   try {

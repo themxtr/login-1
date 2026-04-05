@@ -18,6 +18,15 @@
   --error: #ef4444;
   --warning: #f59e0b;
   
+  /* Spacing Scale */
+  --space-2xs: 0.25rem;
+  --space-xs: 0.5rem;
+  --space-sm: 1rem;
+  --space-md: 1.5rem;
+  --space-lg: 2rem;
+  --space-xl: 3rem;
+  --space-2xl: 4rem;
+
   --shadow-lux: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
   --shadow-inner: inset 0 1px 1px 0 rgba(255, 255, 255, 0.05);
   
@@ -214,12 +223,25 @@ h1 {
   -webkit-text-fill-color: transparent;
 }
 
+/* Layout Utilities */
+.grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-lg); }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-lg); }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-md); }
+
+@media (max-width: 1024px) {
+  .grid-3, .grid-4 { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 640px) {
+  .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+}
+
 .card {
   background: var(--glass-bg);
   backdrop-filter: blur(25px) saturate(150%);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-2xl);
-  padding: 2.5rem;
+  padding: var(--space-xl);
   box-shadow: var(--shadow-lux);
   transition: var(--transition-smooth);
   position: relative;
