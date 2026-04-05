@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { LayoutDashboard, Search, MessageSquare, Bell, ChevronDown, CheckSquare, LogOut } from 'lucide-react';
 import Dashboard from './components/Dashboard';
+import Wallet from './components/Wallet';
 import Records from './components/Records';
 import Settings from './components/Settings';
 import Login from './components/Login';
@@ -137,11 +138,24 @@ const AppContent: React.FC = () => {
           <ul className="tabs">
             <li className={currentPage === 'dashboard' ? 'active' : ''} onClick={() => setCurrentPage('dashboard')}>Overview</li>
             <li className={currentPage === 'wallet' ? 'active' : ''} onClick={() => setCurrentPage('wallet')}>Wallet</li>
-            <li className={currentPage === 'analytics' ? 'active' : ''} onClick={() => setCurrentPage('analytics')}>Analytics</li>
             <li className={currentPage === 'transaction' ? 'active' : ''} onClick={() => setCurrentPage('transaction')}>Transaction</li>
+            
+            {/* Analyst & Admin Tabs */}
+            {(mockRole === 'ADMIN' || mockRole === 'ANALYST') && (
+              <>
+                <li className={currentPage === 'analytics' ? 'active' : ''} onClick={() => setCurrentPage('analytics')}>Analytics</li>
+              </>
+            )}
+
+            {/* Admin Only Tabs */}
+            {mockRole === 'ADMIN' && (
+              <>
+                <li className={currentPage === 'report' ? 'active' : ''} onClick={() => setCurrentPage('report')}>Report</li>
+                <li className={currentPage === 'settings' ? 'active' : ''} onClick={() => setCurrentPage('settings')}>Settings</li>
+              </>
+            )}
+            
             <li className={currentPage === 'help' ? 'active' : ''} onClick={() => setCurrentPage('help')}>Help</li>
-            <li className={currentPage === 'settings' ? 'active' : ''} onClick={() => setCurrentPage('settings')}>Settings</li>
-            <li className={currentPage === 'report' ? 'active' : ''} onClick={() => setCurrentPage('report')}>Report</li>
           </ul>
         </div>
 
@@ -154,9 +168,12 @@ const AppContent: React.FC = () => {
             transition={{ duration: 0.2 }}
           >
             {currentPage === 'dashboard' && <Dashboard />}
+            {currentPage === 'wallet' && <Wallet />}
             {currentPage === 'transaction' && <Records />}
             {currentPage === 'settings' && <Settings />}
-            {(currentPage === 'wallet' || currentPage === 'analytics' || currentPage === 'report' || currentPage === 'help') && (
+            
+            {/* Placeholders for un-implemented items */}
+            {(currentPage === 'analytics' || currentPage === 'report' || currentPage === 'help') && (
               <div className="module-placeholder">
                 <p>Module coming soon: {currentPage.charAt(0).toUpperCase() + currentPage.slice(1)}</p>
               </div>

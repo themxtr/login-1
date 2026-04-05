@@ -129,103 +129,112 @@ const Dashboard = () => {
         </motion.div>
       </div>
 
-      {/* Main Content Grid */}
-      <div className="grid-auto">
-        
-        {/* Left Column: Statistics */}
-        <motion.div initial={{opacity:0, y:10}} animate={{opacity:1, y:0}} transition={{delay: 0.3}} className="card">
-          <div className="section-header">
-            <h3 className="section-title">Statistics</h3>
-            <div className="section-filter">
-              <Calendar size={16} /> Monthly
+      {/* Main Content Grid - Hidden for Viewer */}
+      {!isViewer ? (
+        <div className="grid-auto">
+          {/* Left Column: Statistics */}
+          <motion.div initial={{opacity:0, y:10}} animate={{opacity:1, y:0}} transition={{delay: 0.3}} className="card">
+            <div className="section-header">
+              <h3 className="section-title">Statistics</h3>
+              <div className="section-filter">
+                <Calendar size={16} /> Monthly
+              </div>
             </div>
-          </div>
-          
-          <div className="legend-group">
-            <div className="legend-item"><div className="legend-dot dot-green"></div> Total income</div>
-            <div className="legend-item"><div className="legend-dot dot-orange"></div> Total expenses</div>
-          </div>
-
-          <div className="chart-wrapper">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={trendData}>
-                <XAxis dataKey="month" axisLine={false} tickLine={false} dy={10} minTickGap={20} />
-                <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} />
-                <Area type="monotone" dataKey="income" stroke="#10b981" fill="none" strokeWidth={3} />
-                <Area type="monotone" dataKey="expenses" stroke="#f97316" fill="none" strokeWidth={3} />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-
-          <div className="stats-footer">
-            <div className="stat-block">
-              <p className="stat-sub">Average income</p>
-              <p className="card-value-sm">{displayVal(summary?.averages?.income)}</p>
-              <p className="trend-positive" style={{ background: 'transparent', padding: '0' }}>+9.8% <span className="trend-text">compare to last month</span></p>
-            </div>
-            <div className="stat-block">
-              <p className="stat-sub">Average expenses</p>
-              <p className="card-value-sm">{displayVal(summary?.averages?.expenses)}</p>
-              <p className="trend-negative" style={{ background: 'transparent', padding: '0' }}>-8.7% <span className="trend-text">compare to last month</span></p>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Right Column: All Expenses & Banner */}
-        <div className="card-layout">
-          <motion.div initial={{opacity:0, y:10}} animate={{opacity:1, y:0}} transition={{delay: 0.4}} className="card">
-            <h3 className="section-title" style={{ marginBottom: '1.5rem' }}>All expenses</h3>
             
-            <div className="expense-splits">
-              <div className="split-item">
-                <p className="sub">Daily</p>
-                <p className="val">{displayVal(summary?.expenseSplits?.daily)}</p>
-              </div>
-              <div className="split-item">
-                <p className="sub">Weekly</p>
-                <p className="val">{displayVal(summary?.expenseSplits?.weekly)}</p>
-              </div>
-              <div className="split-item">
-                <p className="sub">Monthly</p>
-                <p className="val">{displayVal(summary?.expenseSplits?.monthly)}</p>
-              </div>
+            <div className="legend-group">
+              <div className="legend-item"><div className="legend-dot dot-green"></div> Total income</div>
+              <div className="legend-item"><div className="legend-dot dot-orange"></div> Total expenses</div>
             </div>
 
-            <div className="radial-wrapper">
-               <ResponsiveContainer width="100%" height="100%">
-                <RadialBarChart cx="50%" cy="50%" innerRadius="30%" outerRadius="100%" barSize={10} data={radialData}>
-                  <RadialBar
-                    background
-                    dataKey="value"
-                    cornerRadius={10}
-                  />
-                  <Tooltip />
-                </RadialBarChart>
+            <div className="chart-wrapper">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={trendData}>
+                  <XAxis dataKey="month" axisLine={false} tickLine={false} dy={10} minTickGap={20} />
+                  <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} />
+                  <Area type="monotone" dataKey="income" stroke="#10b981" fill="none" strokeWidth={3} />
+                  <Area type="monotone" dataKey="expenses" stroke="#f97316" fill="none" strokeWidth={3} />
+                </AreaChart>
               </ResponsiveContainer>
             </div>
 
-            <div className="category-list">
-              {radialData.map((entry: any, i: number) => {
-                const percentage = totalCatExpenses > 1 ? Math.round((entry.value / totalCatExpenses) * 100) : 0;
-                return (
-                  <div key={i} className="category-item">
-                    <div className="category-name">
-                      <div className="legend-dot" style={{backgroundColor: entry.fill}}></div>
-                      {entry.name}
-                    </div>
-                    <div className="category-val">{percentage}%</div>
-                  </div>
-                );
-              })}
+            <div className="stats-footer">
+              <div className="stat-block">
+                <p className="stat-sub">Average income</p>
+                <p className="card-value-sm">{displayVal(summary?.averages?.income)}</p>
+                <p className="trend-positive" style={{ background: 'transparent', padding: '0' }}>+9.8% <span className="trend-text">compare to last month</span></p>
+              </div>
+              <div className="stat-block">
+                <p className="stat-sub">Average expenses</p>
+                <p className="card-value-sm">{displayVal(summary?.averages?.expenses)}</p>
+                <p className="trend-negative" style={{ background: 'transparent', padding: '0' }}>-8.7% <span className="trend-text">compare to last month</span></p>
+              </div>
             </div>
           </motion.div>
 
-          <motion.div initial={{opacity:0, y:10}} animate={{opacity:1, y:0}} transition={{delay: 0.5}} className="promo-banner">
-            <h3>Secure Your Future with Our Comprehensive Retirement Plans!</h3>
-            <button className="btn-white">Learn more</button>
-          </motion.div>
+          {/* Right Column: All Expenses & Banner */}
+          <div className="card-layout">
+            <motion.div initial={{opacity:0, y:10}} animate={{opacity:1, y:0}} transition={{delay: 0.4}} className="card">
+              <h3 className="section-title" style={{ marginBottom: '1.5rem' }}>All expenses</h3>
+              
+              <div className="expense-splits">
+                <div className="split-item">
+                  <p className="sub">Daily</p>
+                  <p className="val">{displayVal(summary?.expenseSplits?.daily)}</p>
+                </div>
+                <div className="split-item">
+                  <p className="sub">Weekly</p>
+                  <p className="val">{displayVal(summary?.expenseSplits?.weekly)}</p>
+                </div>
+                <div className="split-item">
+                  <p className="sub">Monthly</p>
+                  <p className="val">{displayVal(summary?.expenseSplits?.monthly)}</p>
+                </div>
+              </div>
+
+              <div className="radial-wrapper">
+                 <ResponsiveContainer width="100%" height="100%">
+                  <RadialBarChart cx="50%" cy="50%" innerRadius="30%" outerRadius="100%" barSize={10} data={radialData}>
+                    <RadialBar
+                      background
+                      dataKey="value"
+                      cornerRadius={10}
+                    />
+                    <Tooltip />
+                  </RadialBarChart>
+                </ResponsiveContainer>
+              </div>
+
+              <div className="category-list">
+                {radialData.map((entry: any, i: number) => {
+                  const percentage = totalCatExpenses > 1 ? Math.round((entry.value / totalCatExpenses) * 100) : 0;
+                  return (
+                    <div key={i} className="category-item">
+                      <div className="category-name">
+                        <div className="legend-dot" style={{backgroundColor: entry.fill}}></div>
+                        {entry.name}
+                      </div>
+                      <div className="category-val">{percentage}%</div>
+                    </div>
+                  );
+                })}
+              </div>
+            </motion.div>
+
+            <motion.div initial={{opacity:0, y:10}} animate={{opacity:1, y:0}} transition={{delay: 0.5}} className="promo-banner">
+              <h3>Secure Your Future with Our Comprehensive Retirement Plans!</h3>
+              <button className="btn-white">Learn more</button>
+            </motion.div>
+          </div>
         </div>
-      </div>
+      ) : (
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="card" style={{ textAlign: 'center', padding: '4rem 2rem' }}>
+          <div style={{ width: '64px', height: '64px', background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem auto' }}>
+            <Calendar size={32} />
+          </div>
+          <h3 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.5rem' }}>Advanced Analytics Hidden</h3>
+          <p style={{ color: '#6b7280', maxWidth: '400px', margin: '0 auto' }}>You are currently on the Viewer perspective. Advanced financial trends and category distributions are restricted to Analyst and Admin personas.</p>
+        </motion.div>
+      )}
 
     </div>
   );

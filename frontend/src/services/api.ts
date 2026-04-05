@@ -99,6 +99,10 @@ export const api = {
   deleteRecord: (id: string) => request<{ message: string }>(`/records/${id}`, {
     method: 'DELETE',
   }),
+  updateUser: (id: string, data: Partial<User>) => request<User>(`/users/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  }),
 };
 export const {
   getSummary: getDashboardSummary,
