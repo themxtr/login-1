@@ -28,7 +28,12 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<FirebaseUser | null>(null);
   const [loading, setLoading] = useState(true);
-  const [mockRole, setMockRole] = useState<string>('ADMIN');
+  const [mockRole, _setMockRole] = useState<string>(() => localStorage.getItem('mockRole') || 'ADMIN');
+
+  const setMockRole = (role: string) => {
+    localStorage.setItem('mockRole', role);
+    _setMockRole(role);
+  };
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {

@@ -55,20 +55,22 @@ const Dashboard = () => {
       { month: 'Current', income: 0, expenses: 0 } // Baseline to prevent rendering errors
     ];
 
-  // Format Radial chart data
-  const colors = ['#0ea5e9', '#f97316', '#ef4444', '#16a34a', '#8b5cf6'];
-  const totalCatExpenses = summary?.categoryBreakdown?.reduce((a: any, b: any) => a + b.totalAmount, 0) || 0;
-  const rawRadialData = summary?.categoryBreakdown?.slice(0, 4) || [];
-  
-  const radialData = rawRadialData.length > 0 
-    ? rawRadialData.map((c: any, index: number) => ({
-      name: c.category,
-      value: c.totalAmount,
-      fill: colors[index % colors.length]
-    })) 
-    : [
-      { name: 'No data', value: 1, fill: '#e5e7eb' }
-    ];
+  // Format Radial chart data - Use Income vs Expenses instead of categories
+  const radialData = [
+    { 
+      name: 'Expenses', 
+      value: summary?.totals?.expenses || 0, 
+      fill: 'var(--primary)' 
+    },
+    { 
+      name: 'Income', 
+      value: summary?.totals?.income || 0, 
+      fill: 'var(--success)' 
+    }
+  ];
+
+  // Map success color if not defined as CSS variable
+  if (radialData[1].value > 0 && !radialData[1].fill) radialData[1].fill = '#16a34a';
 
   return (
     <div>
@@ -206,7 +208,8 @@ const Dashboard = () => {
 
               <div className="category-list">
                 {radialData.map((entry: any, i: number) => {
-                  const percentage = totalCatExpenses > 1 ? Math.round((entry.value / totalCatExpenses) * 100) : 0;
+                  const totalVolume = (summary?.totals?.income || 0) + (summary?.totals?.expenses || 0);
+                  const percentage = totalVolume > 0 ? Math.round((entry.value / totalVolume) * 100) : 0;
                   return (
                     <div key={i} className="category-item">
                       <div className="category-name">
