@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Copy, ArrowUpRight, ArrowDownRight, Calendar } from 'lucide-react';
+import { Copy, ArrowUpRight, ArrowDownRight, Calendar, CheckSquare } from 'lucide-react';
 import { 
   AreaChart, Area, XAxis, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell
@@ -100,11 +100,6 @@ const Dashboard = () => {
               <Copy size={14} /> Copy
             </button>
           </div>
-
-          <div className="btn-group">
-            <button className="btn-primary" disabled={isViewer}>Send money</button>
-            <button className="btn-secondary" disabled={isViewer}>Request money</button>
-          </div>
         </motion.div>
 
         {/* Monthly Income Card */}
@@ -137,8 +132,14 @@ const Dashboard = () => {
       </div>
 
       {/* Main Content Grid - Hidden for Viewer */}
-      {!isViewer ? (
-        <div className="grid-auto">
+      {isViewer && (
+        <div className="viewer-mode-badge mb-6">
+          <CheckSquare size={14} />
+          <span>VIEWER PERSPECTIVE — READ ONLY ACCESS</span>
+        </div>
+      )}
+
+      <div className="grid-auto">
           {/* Left Column: Statistics */}
           <motion.div initial={{opacity:0, y:10}} animate={{opacity:1, y:0}} transition={{delay: 0.3}} className="card">
             <div className="section-header">
@@ -250,18 +251,8 @@ const Dashboard = () => {
             </motion.div>
           </div>
         </div>
-      ) : (
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="card" style={{ textAlign: 'center', padding: '4rem 2rem' }}>
-          <div style={{ width: '64px', height: '64px', background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem auto' }}>
-            <Calendar size={32} />
-          </div>
-          <h3 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.5rem' }}>Advanced Analytics Hidden</h3>
-          <p style={{ color: '#6b7280', maxWidth: '400px', margin: '0 auto' }}>You are currently on the Viewer perspective. Advanced financial trends and category distributions are restricted to Analyst and Admin personas.</p>
-        </motion.div>
-      )}
-
-    </div>
-  );
+      </div>
+    );
 };
 
 export default Dashboard;
