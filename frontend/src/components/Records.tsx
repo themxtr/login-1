@@ -16,9 +16,17 @@ const Records = () => {
   const [showModal, setShowModal] = useState(false);
   const [filters, setFilters] = useState({ type: '', category: '' });
   
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    amount: string;
+    type: 'INCOME' | 'EXPENSE';
+    financialGroup: string;
+    category: string;
+    notes: string;
+    date: string;
+  }>({
     amount: '',
     type: 'EXPENSE',
+    financialGroup: 'EXPENSE',
     category: '',
     notes: '',
     date: new Date().toISOString().split('T')[0]
@@ -52,11 +60,12 @@ const Records = () => {
         ...formData,
         amount,
         date: new Date(formData.date).toISOString()
-      } as any);
+      });
       setShowModal(false);
       setFormData({
         amount: '',
         type: 'EXPENSE',
+        financialGroup: 'EXPENSE',
         category: '',
         notes: '',
         date: new Date().toISOString().split('T')[0]
@@ -249,20 +258,51 @@ const Records = () => {
                     <label className="form-label">Type</label>
                     <select 
                       className="form-select"
-                      value={formData.type} onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+                      value={formData.type} 
+                      onChange={(e) => {
+                        const type = e.target.value as 'INCOME' | 'EXPENSE';
+                        setFormData({ 
+                          ...formData, 
+                          type, 
+                          financialGroup: type === 'INCOME' ? 'REVENUE' : 'EXPENSE' 
+                        });
+                      }}
                     >
                       <option value="EXPENSE">Expense</option>
                       <option value="INCOME">Income</option>
                     </select>
                   </div>
                   <div className="form-group">
-                    <label className="form-label">Date</label>
-                    <input 
-                      type="date" required 
-                      className="form-input"
-                      value={formData.date} onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                    />
+                    <label className="form-label">Financial Group</label>
+                    <select 
+                      className="form-select"
+                      value={formData.financialGroup} 
+                      onChange={(e) => setFormData({ ...formData, financialGroup: e.target.value })}
+                    >
+                      {formData.type === 'INCOME' ? (
+                        <>
+                          <option value="REVENUE">Revenue</option>
+                          <option value="ASSET">Asset (Investment/Cash)</option>
+                          <option value="EQUITY">Equity (Capital)</option>
+                        </>
+                      ) : (
+                        <>
+                          <option value="EXPENSE">Expense (Operational)</option>
+                          <option value="COGS">COGS (Direct Costs)</option>
+                          <option value="LIABILITY">Liability (Debt/Loan)</option>
+                        </>
+                      )}
+                    </select>
                   </div>
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Date</label>
+                  <input 
+                    type="date" required 
+                    className="form-input"
+                    value={formData.date} onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                  />
                 </div>
 
                 <div className="form-group">
