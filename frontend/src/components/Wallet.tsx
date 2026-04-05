@@ -2,10 +2,12 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { CreditCard, Plus, ArrowUpRight, ArrowDownRight, Smartphone, ShieldCheck, X, DollarSign } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { useCurrency } from '../contexts/CurrencyContext';
 import { getDashboardSummary, api } from '../services/api';
 
 const Wallet = () => {
   const { mockRole } = useAuth();
+  const { formatAmount } = useCurrency();
   const isViewer = mockRole === 'VIEWER';
   
   const [summary, setSummary] = useState<any>(null);
@@ -54,7 +56,7 @@ const Wallet = () => {
   };
 
   const displayVal = (val: number | undefined) => {
-    return `$${(val || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    return formatAmount(val || 0);
   };
 
   if (loading) {

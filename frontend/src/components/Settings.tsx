@@ -2,32 +2,29 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { User, Globe, Shield, Save, Check } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { useCurrency } from '../contexts/CurrencyContext';
 import { api, type Role } from '../services/api';
 
 const Settings = () => {
-  const { user, mockRole, setMockRole } = useAuth();
+  const { user, mockRole, setMockRole, displayName, setDisplayName } = useAuth();
+  const { currency: globalCurrency, setCurrency: setGlobalCurrency } = useCurrency();
   const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [name, setName] = useState('');
-  const [currency, setCurrency] = useState('USD');
+  const [name, setName] = useState(displayName);
+  const [currency, setLocalCurrency] = useState(globalCurrency);
   
   useEffect(() => {
-    // Attempt to load settings
-    const storedCurrency = localStorage.getItem('currency');
-    if (storedCurrency) setCurrency(storedCurrency);
-    const storedName = localStorage.getItem('displayName');
-    if (storedName) setName(storedName);
-    else if (user?.email) setName(user.email.split('@')[0]);
-  }, [user]);
+    setName(displayName);
+    setLocalCurrency(globalCurrency);
+  }, [displayName, globalCurrency]);
 
   const handleSave = async () => {
     setLoading(true);
     try {
-      localStorage.setItem('currency', currency);
-      localStorage.setItem('displayName', name);
+      setDisplayName(name);
+      setGlobalCurrency(currency as any);
       
       // Update persistent database via true backend
-      // Normally, `user.id` exists via Context mapping. We use a fallback if mock.
       const userIdToPatch = user?.uid || 'viewer-id';
       await api.updateUser(userIdToPatch, { name: name } as any);
 
@@ -110,11 +107,11 @@ const Settings = () => {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <div className="form-group">
               <label className="form-label">Default Currency</label>
-              <select className="form-input" value={currency} onChange={(e) => setCurrency(e.target.value)}>
-                <option value="USD">USD ($)</option>
-                <option value="EUR">EUR (€)</option>
-                <option value="GBP">GBP (£)</option>
-                <option value="JPY">JPY (¥)</option>
+              <select className="form-input" value={currency} onChange={(e) => setLocalCurrency(e.target.value as any)}>
+                <option value="USD">USD ($) - US Dollar</option>
+                <option value="INR">INR (₹) - Indian Rupee</option>
+                <option value="EUR">EUR (€) - Euro</option>
+                <option value="GBP">GBP (£) - British Pound</option>
               </select>
             </div>
             <div className="form-group">

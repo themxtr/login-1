@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Trash2, Edit2, X, Filter, Search, DollarSign } from 'lucide-react';
+import { Plus, Trash2, Edit2, X, Filter, Search } from 'lucide-react';
 import { api, type Transaction } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
+import { useCurrency } from '../contexts/CurrencyContext';
 
 const Records = () => {
   const { mockRole } = useAuth();
+  const { formatAmount, currency: globalCurrency } = useCurrency();
   const isReadOnly = mockRole === 'VIEWER';
   const roleLabel = mockRole.charAt(0) + mockRole.slice(1).toLowerCase();
 
@@ -173,7 +175,7 @@ const Records = () => {
                     </span>
                   </td>
                   <td style={{ fontWeight: 800, color: record.type === 'INCOME' ? 'var(--success)' : 'var(--text-primary)' }}>
-                    {record.type === 'INCOME' ? '+' : '-'}${record.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                    {record.type === 'INCOME' ? '+' : '-'}{formatAmount(record.amount)}
                   </td>
                   <td style={{ textAlign: 'right' }}>
                     <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
@@ -229,7 +231,9 @@ const Records = () => {
                 <div className="form-group">
                   <label className="form-label">Transaction Amount</label>
                   <div style={{ position: 'relative' }}>
-                    <DollarSign size={20} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--primary)' }} />
+                    <div style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', fontWeight: 800, color: 'var(--primary)' }}>
+                      {globalCurrency === 'USD' ? '$' : '₹'}
+                    </div>
                     <input 
                       type="number" required step="0.01" 
                       className="form-input"

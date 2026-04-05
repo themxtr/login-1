@@ -7,17 +7,18 @@ import {
 } from 'recharts';
 import { getDashboardSummary } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
+import { useCurrency } from '../contexts/CurrencyContext';
 
 const Dashboard = () => {
   const { mockRole } = useAuth();
+  const { formatAmount } = useCurrency();
   const [summary, setSummary] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   // Role visibility logic
   const isViewer = mockRole === 'VIEWER';
   const displayVal = (val: number | string | undefined | null) => {
-    const num = Number(val || 0);
-    return `$${num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    return formatAmount(Number(val || 0));
   };
 
   useEffect(() => {

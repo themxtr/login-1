@@ -8,9 +8,10 @@ import Settings from './components/Settings';
 import Login from './components/Login';
 import Signup from './components/Signup';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { CurrencyProvider } from './contexts/CurrencyContext';
 
 const AppContent: React.FC = () => {
-  const { user, loading, logout, mockRole, setMockRole } = useAuth();
+  const { user, loading, logout, mockRole, setMockRole, displayName } = useAuth();
   const [currentPage, setCurrentPage] = useState<'dashboard' | 'wallet' | 'analytics' | 'transaction' | 'help' | 'settings' | 'report'>('dashboard');
   const [showRoleMenu, setShowRoleMenu] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
@@ -31,8 +32,7 @@ const AppContent: React.FC = () => {
     return <Login />;
   }
 
-  const displayName = user.email ? user.email.split('@')[0].replace(/[^a-zA-Z]/g, ' ') : 'Jaylon';
-  const capitalizedName = displayName.charAt(0).toUpperCase() + displayName.slice(1);
+
 
   return (
     <div className="app-container">
@@ -100,10 +100,10 @@ const AppContent: React.FC = () => {
               className="profile-group"
               onClick={() => setShowProfileMenu(!showProfileMenu)}
             >
-              <img src={`https://ui-avatars.com/api/?name=${capitalizedName}&background=16a34a&color=fff`} className="avatar" alt="Avatar" />
+              <img src={`https://ui-avatars.com/api/?name=${displayName}&background=16a34a&color=fff`} className="avatar" alt="Avatar" />
               <div className="profile-info">
-                <p className="profile-name">{capitalizedName} Baptista</p>
-                <p className="profile-handle">@{displayName.toLowerCase()}baptista</p>
+                <p className="profile-name">{displayName}</p>
+                <p className="profile-handle">@{displayName.toLowerCase()}</p>
               </div>
               <ChevronDown size={14} className="text-gray-400" />
             </div>
@@ -132,13 +132,14 @@ const AppContent: React.FC = () => {
       <main className="main-content">
         <div className="page-header">
           <div>
-            <h1 className="page-title">Good morning, {capitalizedName}</h1>
+            <h1 className="page-title">Good morning, {displayName}</h1>
             <p className="page-subtitle">This is your finance report</p>
           </div>
           <ul className="tabs">
             <li className={currentPage === 'dashboard' ? 'active' : ''} onClick={() => setCurrentPage('dashboard')}>Overview</li>
             <li className={currentPage === 'wallet' ? 'active' : ''} onClick={() => setCurrentPage('wallet')}>Wallet</li>
             <li className={currentPage === 'transaction' ? 'active' : ''} onClick={() => setCurrentPage('transaction')}>Transaction</li>
+            <li className={currentPage === 'settings' ? 'active' : ''} onClick={() => setCurrentPage('settings')}>Settings</li>
             
             {/* Analyst & Admin Tabs */}
             {(mockRole === 'ADMIN' || mockRole === 'ANALYST') && (
@@ -151,7 +152,6 @@ const AppContent: React.FC = () => {
             {mockRole === 'ADMIN' && (
               <>
                 <li className={currentPage === 'report' ? 'active' : ''} onClick={() => setCurrentPage('report')}>Report</li>
-                <li className={currentPage === 'settings' ? 'active' : ''} onClick={() => setCurrentPage('settings')}>Settings</li>
               </>
             )}
             
@@ -188,7 +188,9 @@ const AppContent: React.FC = () => {
 const App: React.FC = () => {
   return (
     <AuthProvider>
-      <AppContent />
+      <CurrencyProvider>
+        <AppContent />
+      </CurrencyProvider>
     </AuthProvider>
   );
 };
