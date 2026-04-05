@@ -15,7 +15,11 @@ export interface User {
 export interface Transaction {
   id: string;
   amount: number;
+  currency: string;
+  originalAmount?: number;
+  exchangeRateAtEntry?: number;
   type: 'INCOME' | 'EXPENSE';
+  financialGroup: string;
   category: string;
   date: string;
   notes?: string;

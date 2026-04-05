@@ -17,7 +17,10 @@ export const users = pgTable('users', {
 export const transactions = pgTable('transactions', {
   id: uuid('id').defaultRandom().primaryKey(),
   userId: text('user_id').references(() => users.id).notNull(),
-  amount: real('amount').notNull(),
+  amount: real('amount').notNull(), // This will be the USD-normalized amount for analytics
+  currency: text('currency').notNull().default('USD'),
+  originalAmount: real('original_amount'),
+  exchangeRateAtEntry: real('exchange_rate_at_entry').default(1.0),
   type: transactionTypeEnum('type').notNull(),
   financialGroup: financialGroupEnum('financial_group').notNull().default('EXPENSE'),
   category: text('category').notNull(),

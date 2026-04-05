@@ -7,7 +7,7 @@ import { useCurrency } from '../contexts/CurrencyContext';
 
 const Records = () => {
   const { mockRole } = useAuth();
-  const { formatAmount, currency: globalCurrency } = useCurrency();
+  const { formatAmount, currency: globalCurrency, exchangeRate, convertToBase } = useCurrency();
   const isReadOnly = mockRole === 'VIEWER';
   const roleLabel = mockRole.charAt(0) + mockRole.slice(1).toLowerCase();
 
@@ -56,9 +56,14 @@ const Records = () => {
     if (isNaN(amount) || amount <= 0) return;
 
     try {
+      const normalizedAmount = convertToBase(amount, globalCurrency as any);
+      
       await api.createRecord({
         ...formData,
-        amount,
+        amount: normalizedAmount, // Store normalized USD for analytics
+        originalAmount: amount, // Store what the user actually typed
+        currency: globalCurrency,
+        exchangeRateAtEntry: exchangeRate,
         date: new Date(formData.date).toISOString()
       });
       setShowModal(false);
@@ -300,6 +305,7 @@ const Records = () => {
                   <label className="form-label">Date</label>
                   <input 
                     type="date" required 
+                    max={new Date().toISOString().split('T')[0]}
                     className="form-input"
                     value={formData.date} onChange={(e) => setFormData({ ...formData, date: e.target.value })}
                   />

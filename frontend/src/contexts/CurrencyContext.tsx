@@ -7,6 +7,7 @@ interface CurrencyContextType {
   setCurrency: (c: Currency) => void;
   exchangeRate: number; // 1 USD to INR
   formatAmount: (amount: number) => string;
+  convertToBase: (amount: number, fromCurrency: Currency) => number;
 }
 
 const CurrencyContext = createContext<CurrencyContextType | undefined>(undefined);
@@ -43,8 +44,13 @@ export const CurrencyProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     return `$${amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
 
+  const convertToBase = (amount: number, fromCurrency: Currency): number => {
+    if (fromCurrency === 'INR') return amount / exchangeRate;
+    return amount;
+  };
+
   return (
-    <CurrencyContext.Provider value={{ currency, setCurrency, exchangeRate, formatAmount }}>
+    <CurrencyContext.Provider value={{ currency, setCurrency, exchangeRate, formatAmount, convertToBase }}>
       {children}
     </CurrencyContext.Provider>
   );
