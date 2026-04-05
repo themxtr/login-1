@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Copy, ArrowUpRight, ArrowDownRight, Calendar } from 'lucide-react';
 import { 
   AreaChart, Area, XAxis, Tooltip, ResponsiveContainer,
-  RadialBarChart, RadialBar
+  PieChart, Pie, Cell
 } from 'recharts';
 import { getDashboardSummary } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
@@ -56,22 +56,28 @@ const Dashboard = () => {
       { month: 'Current', income: 0, expenses: 0 } // Baseline to prevent rendering errors
     ];
 
-  // Format Radial chart data - Use Income vs Expenses instead of categories
-  const radialData = [
+  // Format chart data - Use Income vs Expenses distribution
+  const distributionData = [
     { 
       name: 'Expenses', 
       value: summary?.totals?.expenses || 0, 
-      fill: 'var(--primary)' 
+      color: '#ef4444' // Red for expenses
     },
     { 
       name: 'Income', 
       value: summary?.totals?.income || 0, 
-      fill: 'var(--success)' 
+      color: '#22c55e' // Green for income
     }
   ];
 
+  const totalForDistribution = distributionData.reduce((acc, curr) => acc + curr.value, 0);
+  const getPercentage = (val: number) => {
+    if (totalForDistribution === 0) return 0;
+    return ((val / totalForDistribution) * 100).toFixed(0);
+  };
+
   // Map success color if not defined as CSS variable
-  if (radialData[1].value > 0 && !radialData[1].fill) radialData[1].fill = '#16a34a';
+  if (distributionData[1].value > 0 && !distributionData[1].color) distributionData[1].color = '#22c55e';
 
   return (
     <div>
@@ -196,28 +202,42 @@ const Dashboard = () => {
 
               <div className="radial-wrapper">
                  <ResponsiveContainer width="100%" height="100%">
-                  <RadialBarChart cx="50%" cy="50%" innerRadius="30%" outerRadius="100%" barSize={10} data={radialData}>
-                    <RadialBar
-                      background
+                  <PieChart>
+                    <Pie
+                      data={distributionData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius="60%"
+                      outerRadius="90%"
+                      paddingAngle={5}
                       dataKey="value"
-                      cornerRadius={10}
+                      stroke="none"
+                    >
+                      {distributionData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip 
+                      formatter={(value: any) => formatAmount(Number(value || 0))}
+                      contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
                     />
-                    <Tooltip />
-                  </RadialBarChart>
+                  </PieChart>
                 </ResponsiveContainer>
+                <div className="donut-center">
+                   <span className="percentage">{getPercentage(summary?.totals?.income || 0)}%</span>
+                   <span className="label">Income</span>
+                </div>
               </div>
 
               <div className="category-list">
-                {radialData.map((entry: any, i: number) => {
-                  const totalVolume = (summary?.totals?.income || 0) + (summary?.totals?.expenses || 0);
-                  const percentage = totalVolume > 0 ? Math.round((entry.value / totalVolume) * 100) : 0;
+                {distributionData.map((entry: any, i: number) => {
                   return (
                     <div key={i} className="category-item">
                       <div className="category-name">
-                        <div className="legend-dot" style={{backgroundColor: entry.fill}}></div>
+                        <div className="legend-dot" style={{backgroundColor: entry.color}}></div>
                         {entry.name}
                       </div>
-                      <div className="category-val">{percentage}%</div>
+                      <div className="category-val">{getPercentage(entry.value)}%</div>
                     </div>
                   );
                 })}

@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LayoutDashboard, MessageSquare, Bell, ChevronDown, CheckSquare, LogOut } from 'lucide-react';
+import { LayoutDashboard, Bell, ChevronDown, CheckSquare, LogOut } from 'lucide-react';
 import Dashboard from './components/Dashboard';
 import Records from './components/Records';
 import Analytics from './components/Analytics';
@@ -10,13 +10,32 @@ import Login from './components/Login';
 import Signup from './components/Signup';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { CurrencyProvider } from './contexts/CurrencyContext';
+import { api } from './services/api';
 
 const AppContent: React.FC = () => {
   const { user, loading, logout, mockRole, setMockRole, displayName } = useAuth();
   const [currentPage, setCurrentPage] = useState<'dashboard' | 'analytics' | 'transaction' | 'notifications' | 'settings'>('dashboard');
   const [showRoleMenu, setShowRoleMenu] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [hasUnread, setHasUnread] = useState(false);
   
+  useEffect(() => {
+    if (user) {
+      const checkNotifications = async () => {
+        try {
+          const notifications = await api.getNotifications();
+          setHasUnread(notifications.some(n => n.isRead === 'false' || n.isRead === false));
+        } catch (err) {
+          console.error("Failed to fetch notifications", err);
+        }
+      };
+      
+      checkNotifications();
+      const interval = setInterval(checkNotifications, 30000); // Check every 30s
+      return () => clearInterval(interval);
+    }
+  }, [user, currentPage]); // Re-check when user or page changes (esp after reading notifs)
+
   const path = window.location.pathname;
 
   if (loading) {
@@ -84,11 +103,9 @@ const AppContent: React.FC = () => {
 
         <div className="nav-right">
           <div className="nav-action-group">
-            <button className="nav-icon-btn">
-              <MessageSquare size={18} /> Chat
-            </button>
             <button className="nav-icon-btn" onClick={() => setCurrentPage('notifications')}>
               <Bell size={20} className={currentPage === 'notifications' ? 'text-primary' : ''} />
+              {hasUnread && <span className="notification-dot"></span>}
             </button>
           </div>
           
