@@ -1,7 +1,7 @@
 import { Router, Response } from 'express';
 import { db } from '../db/client';
-import { transactions } from '../db/schema';
-import { eq, and, gte, lte } from 'drizzle-orm';
+import { transactions, notifications } from '../db/schema';
+import { eq, and, gte, lte, sql } from 'drizzle-orm';
 import { z as zod } from 'zod';
 import { AuthenticatedRequest } from '../middleware/auth';
 import { rbacMiddleware } from '../middleware/rbac';
@@ -58,7 +58,42 @@ router.post('/', async (req: AuthenticatedRequest, res: Response) => {
     const [newRecord] = await db.insert(transactions).values({
       ...body,
       userId: req.user!.id,
-    }).returning();
+    } as any).returning();
+
+    // 1. Transaction Notification
+    const notifType = body.type === 'INCOME' ? 'REVENUE_ADDED' : 'EXPENSE_ADDED';
+    const notifMessage = body.type === 'INCOME' 
+      ? `Successfully added revenue of $${body.amount} in ${body.category}`
+      : `New expense of $${body.amount} recorded for ${body.category}`;
+
+    await db.insert(notifications).values({
+      userId: req.user!.id,
+      type: notifType,
+      message: notifMessage,
+    } as any);
+
+    // 2. High Spending Check (if expense > 1000)
+    if (body.type === 'EXPENSE' && body.amount > 1000) {
+      await db.insert(notifications).values({
+        userId: req.user!.id,
+        type: 'HIGH_SPENDING',
+        message: `Alert: High spending detected! $${body.amount} spent on ${body.category}.`,
+      } as any);
+    }
+
+    // 3. Low Balance Check
+    const [balanceResult] = await db.select({
+      balance: sql<number>`SUM(CASE WHEN type = 'INCOME' THEN amount ELSE -amount END)`
+    }).from(transactions).where(eq(transactions.userId, req.user!.id));
+
+    if (balanceResult && balanceResult.balance < 500) {
+      await db.insert(notifications).values({
+        userId: req.user!.id,
+        type: 'LOW_BALANCE',
+        message: `Low balance alert: Your current balance is $${balanceResult.balance?.toFixed(2) || '0.00'}.`,
+      } as any);
+    }
+
     res.status(201).json(newRecord);
   } catch (err: any) {
     console.error('Create Record Error:', err.message || err);

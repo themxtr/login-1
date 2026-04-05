@@ -4,6 +4,7 @@ export const roleEnum = pgEnum('role', ['ADMIN', 'ANALYST', 'VIEWER']);
 export const statusEnum = pgEnum('status', ['ACTIVE', 'INACTIVE']);
 export const transactionTypeEnum = pgEnum('transaction_type', ['INCOME', 'EXPENSE']);
 export const financialGroupEnum = pgEnum('financial_group', ['REVENUE', 'COGS', 'EXPENSE', 'ASSET', 'LIABILITY', 'EQUITY']);
+export const notificationTypeEnum = pgEnum('notification_type', ['EXPENSE_ADDED', 'REVENUE_ADDED', 'LOW_BALANCE', 'HIGH_SPENDING']);
 
 export const users = pgTable('users', {
   id: text('id').primaryKey(),
@@ -26,5 +27,14 @@ export const transactions = pgTable('transactions', {
   category: text('category').notNull(),
   date: timestamp('date').notNull(),
   notes: text('notes'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+export const notifications = pgTable('notifications', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  userId: text('user_id').notNull(),
+  type: notificationTypeEnum('type').notNull(),
+  message: text('message').notNull(),
+  isRead: text('is_read').default('false'), // Using text for simpler boolean handling in some drizzle versions
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });

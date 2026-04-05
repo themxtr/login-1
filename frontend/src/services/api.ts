@@ -85,6 +85,14 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   return response.json();
 }
 
+export interface Notification {
+  id: string;
+  type: 'EXPENSE_ADDED' | 'REVENUE_ADDED' | 'LOW_BALANCE' | 'HIGH_SPENDING';
+  message: string;
+  isRead: string;
+  createdAt: string;
+}
+
 export const api = {
   getSummary: () => request<DashboardSummary>('/dashboard/summary'),
   getRecords: (params?: Record<string, string>) => {
@@ -108,6 +116,10 @@ export const api = {
     body: JSON.stringify(data),
   }),
   getAnalytics: () => request<any>('/analytics/ratios'),
+  getNotifications: () => request<Notification[]>('/notifications'),
+  markNotificationRead: (id: string) => request<{ success: boolean }>(`/notifications/${id}/read`, {
+    method: 'PATCH',
+  }),
 };
 export const {
   getSummary: getDashboardSummary,

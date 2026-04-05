@@ -9,6 +9,7 @@ import recordsRouter from './routes/records';
 import dashboardRouter from './routes/dashboard';
 import usersRouter from './routes/users';
 import analyticsRouter from './routes/analytics';
+import notificationsRouter from './routes/notifications';
 
 const app = express();
 
@@ -54,6 +55,7 @@ app.use('/api/records', recordsRouter);
 app.use('/api/dashboard', dashboardRouter);
 app.use('/api/users', usersRouter);
 app.use('/api/analytics', analyticsRouter);
+app.use('/api/notifications', notificationsRouter);
 
 // Global Error Handler
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {

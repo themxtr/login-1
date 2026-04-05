@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LayoutDashboard, Search, MessageSquare, Bell, ChevronDown, CheckSquare, LogOut } from 'lucide-react';
+import { LayoutDashboard, MessageSquare, Bell, ChevronDown, CheckSquare, LogOut } from 'lucide-react';
 import Dashboard from './components/Dashboard';
 import Records from './components/Records';
 import Analytics from './components/Analytics';
 import Settings from './components/Settings';
+import Notifications from './components/Notifications';
 import Login from './components/Login';
 import Signup from './components/Signup';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
@@ -12,7 +13,7 @@ import { CurrencyProvider } from './contexts/CurrencyContext';
 
 const AppContent: React.FC = () => {
   const { user, loading, logout, mockRole, setMockRole, displayName } = useAuth();
-  const [currentPage, setCurrentPage] = useState<'dashboard' | 'analytics' | 'transaction' | 'help' | 'settings' | 'report'>('dashboard');
+  const [currentPage, setCurrentPage] = useState<'dashboard' | 'analytics' | 'transaction' | 'notifications' | 'settings' | 'report'>('dashboard');
   const [showRoleMenu, setShowRoleMenu] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   
@@ -78,11 +79,7 @@ const AppContent: React.FC = () => {
         </div>
 
         <div className="nav-center">
-          <div className="search-bar">
-            <Search size={18} className="text-gray-400" />
-            <input type="text" placeholder="Search..." />
-            <div className="search-hint">⌘F</div>
-          </div>
+          {/* Search bar removed per user request */}
         </div>
 
         <div className="nav-right">
@@ -90,8 +87,8 @@ const AppContent: React.FC = () => {
             <button className="nav-icon-btn">
               <MessageSquare size={18} /> Chat
             </button>
-            <button className="nav-icon-btn">
-              <Bell size={20} />
+            <button className="nav-icon-btn" onClick={() => setCurrentPage('notifications')}>
+              <Bell size={20} className={currentPage === 'notifications' ? 'text-primary' : ''} />
             </button>
           </div>
           
@@ -154,7 +151,7 @@ const AppContent: React.FC = () => {
               </>
             )}
             
-            <li className={currentPage === 'help' ? 'active' : ''} onClick={() => setCurrentPage('help')}>Help</li>
+            <li className={currentPage === 'notifications' ? 'active' : ''} onClick={() => setCurrentPage('notifications')}>Notifications</li>
           </ul>
         </div>
 
@@ -168,11 +165,12 @@ const AppContent: React.FC = () => {
           >
             {currentPage === 'dashboard' && <Dashboard />}
             {currentPage === 'transaction' && <Records />}
-            {currentPage === 'settings' && <Settings />}
             {currentPage === 'analytics' && <Analytics />}
+            {currentPage === 'settings' && <Settings />}
+            {currentPage === 'notifications' && <Notifications />}
             
             {/* Placeholders for un-implemented items */}
-            {(currentPage === 'analytics' || currentPage === 'report' || currentPage === 'help') && (
+            {(currentPage === 'report') && (
               <div className="module-placeholder">
                 <p>Module coming soon: {currentPage.charAt(0).toUpperCase() + currentPage.slice(1)}</p>
               </div>
