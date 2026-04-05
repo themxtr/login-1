@@ -16,17 +16,29 @@ A premium, full-stack financial management platform designed for high-end data t
 - **Fluid Animations**: High-performance micro-interactions and view transitions powered by **Framer Motion**.
 - **Responsive Layout**: Designed for both desktop and mobile financial tracking.
 
-### 📊 Interactive Analytics (Recharts)
-- **Financial Trends**: Area charts showing 6-month historical balance and volume trends.
-- **Spending Breakdown**: Categorical analysis using high-contrast, data-driven bar charts.
-- **Real-time Summaries**: Aggregated dashboard statistics for Balance, Revenue, and Costs.
+### 🔔 Proactive Notification System
+- **Real-time Alerts**: Automated notifications for `EXPENSE_ADDED`, `REVENUE_ADDED`, and performance milestones.
+- **Financial Guards**: Instant warnings for `HIGH_SPENDING` (>$1000) and `LOW_BALANCE` (<$500).
+- **Interactive UI**: Dedicated notification panel with "mark as read" functionality and activity badges.
+
+### 📊 Advanced Financial Analytics
+- **Multi-Metric Dashboard**: Real-time tracking of Liquidity, Profitability, and Efficiency ratios.
+- **Interactive Charts**:
+  - **Trends**: Spline area charts for income/expense history.
+  - **Distribution**: Premium Donut charts for categorical spending breakdown.
+- **Role-Based Perspectives**: Upgraded **Viewer** dashboard with full data visualization in a read-only mode.
+
+### 💱 Global Currency Support
+- **Dual Currency**: Native support for **USD ($)** and **INR (₹)**.
+- **Real-time Exchange**: Integrated conversion rates for accurate cross-currency reporting.
+- **Temporal Consistency**: Currency rates are snapshotted at the time of entry to ensure historical data integrity.
 
 ### 🛡️ Robust Security & RBAC
 - **Multi-Role Enforcement**:
-  - **ADMIN**: Full management (Read/Write/Delete) for all transactions.
-  - **ANALYST**: Advanced analytics access and transaction filtering.
-  - **VIEWER**: Read-only access to dashboard and personal records.
-- **Internal User Sync**: Automated synchronization between Firebase Authentication and PostgreSQL via Drizzle ORM.
+  - **ADMIN**: Full management (Read/Write/Delete) for all transactions and settings.
+  - **ANALYST**: Advanced analytics access and transaction optimization.
+  - **VIEWER**: Professional read-only access to dashboard and personal records.
+- **Direct Auth Integration**: Seamless sync between Firebase Authentication and PostgreSQL via Drizzle ORM.
 
 ## 🛠️ Technology Stack
 
@@ -36,7 +48,7 @@ A premium, full-stack financial management platform designed for high-end data t
 - **Animations**: Framer Motion
 - **Charts**: Recharts
 - **Icons**: Lucide-React
-- **State**: Firebase Auth Context
+- **State Management**: React Context + Custom Hooks
 
 ### Backend
 - **Runtime**: Node.js + Express (TypeScript)
@@ -45,62 +57,24 @@ A premium, full-stack financial management platform designed for high-end data t
 - **Security**: Firebase Admin SDK (JWT Validation)
 - **Deployment**: Vercel Serverless Functions
 
-## ⚙️ Configuration & Environment
-
-### Prerequisites
-- Node.js (v18+)
-- Firebase Account
-- Supabase Project
-
-### Environment Variables
-Create a `.env` file in the root directory:
-
-```env
-# Database Connections
-DATABASE_URL="postgresql://..." # Postfix with ?pgbouncer=true
-DIRECT_URL="postgresql://..."   # Direct connection string
-
-# Firebase Admin SDK
-FIREBASE_PROJECT_ID="..."
-FIREBASE_CLIENT_EMAIL="..."
-FIREBASE_PRIVATE_KEY="..."
-
-# Access Control Configuration
-ADMIN_EMAILS="admin@example.com"
-
-# Frontend (VITE_ prefix required)
-VITE_FIREBASE_API_KEY="..."
-VITE_FIREBASE_AUTH_DOMAIN="..."
-VITE_FIREBASE_PROJECT_ID="..."
-# ... rest of firebase config
-```
-
-### Quick Start
-1. **Clone & Install**:
-   ```bash
-   npm install && cd frontend && npm install && cd ..
-   ```
-2. **Development**:
-   ```bash
-   npm run dev
-   ```
-
 ## 🏗️ Project Architecture
 
 ```mermaid
 graph TD
-    A[Vite/React Client] -->|Firebase SDK| B(Firebase Auth)
-    A -->|Authorized API| C[Express Backend]
-    C -->|JWT Verify| B
+    A[Vite/React Client] -->|Authorized API| C[Express Backend]
+    C -->|JWT Verify| B(Firebase Auth)
     C -->|Drizzle ORM| D[Supabase PostgreSQL]
+    D -->|Real-time Triggers| E[Notification System]
 ```
 
 - **`src/`**: Backend API Layer
-  - `/routes`: `dashboard.ts` (Aggregations), `records.ts` (CRUD + RBAC)
-  - `/middleware`: `authMiddleware.ts` (Firebase Validation)
+  - `/routes/dashboard.ts`: High-performance data aggregation and trend analysis.
+  - `/routes/notifications.ts`: Activity tracking and alert delivery.
+  - `/routes/records.ts`: Secure transaction CRUD with currency snapshotting.
 - **`frontend/src/`**: Client Layer
-  - `/components`: `Dashboard` (Visualizations), `Records` (Glassmorphic Table)
-  - `/index.css`: Implementation of the Glassmorphism Design System
+  - `/components/Dashboard`: Central intelligence hub with dynamic visualizations.
+  - `/components/Notifications`: Context-aware alert management.
+  - `/index.css`: Implementation of the Glassmorphism Design System and layout utilities.
 
 ## 📄 License
 Demonstration project. All rights reserved.
