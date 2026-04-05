@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { CreditCard, Plus, ArrowUpRight, ArrowDownRight, Smartphone, ShieldCheck, X } from 'lucide-react';
+import { CreditCard, Plus, ArrowUpRight, ArrowDownRight, Smartphone, ShieldCheck, X, DollarSign } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { getDashboardSummary, api } from '../services/api';
 
@@ -54,7 +54,6 @@ const Wallet = () => {
   };
 
   const displayVal = (val: number | undefined) => {
-    if (isViewer) return '****';
     return `$${(val || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
 
@@ -124,20 +123,39 @@ const Wallet = () => {
         </motion.div>
       </div>
 
-      {/* Modals for Send/Receive */}
       {modalType && (
-        <div style={{position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000}}>
-          <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="card" style={{ width: '400px', maxWidth: '90%' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-              <h3 style={{ fontSize: '1.25rem', fontWeight: 700 }}>{modalType === 'RECEIVE' ? 'Receive Money' : 'Send Money'}</h3>
-              <button onClick={() => setModalType(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6b7280' }}><X size={20} /></button>
-            </div>
-            <form onSubmit={handleTransaction}>
-              <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-                <label className="form-label">Amount ($)</label>
-                <input type="number" step="0.01" value={amount} onChange={(e) => setAmount(e.target.value)} className="form-input" placeholder="0.00" required />
+        <div className="modal-overlay">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            className="modal-content"
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+              <div>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: 800 }}>{modalType === 'RECEIVE' ? 'Receive Money' : 'Send Money'}</h3>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Update your wallet balance instantly</p>
               </div>
-              <button type="submit" className="btn-primary" style={{ width: '100%' }} disabled={submitting}>
+              <button onClick={() => setModalType(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)' }}>
+                <X size={24} />
+              </button>
+            </div>
+            
+            <form onSubmit={handleTransaction} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+              <div className="form-group">
+                <label className="form-label">Amount ($)</label>
+                <div style={{ position: 'relative' }}>
+                  <DollarSign size={20} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--primary)' }} />
+                  <input 
+                    type="number" step="0.01" value={amount} 
+                    onChange={(e) => setAmount(e.target.value)} 
+                    className="form-input" 
+                    style={{ paddingLeft: '2.5rem', fontSize: '1.25rem', fontWeight: 700 }}
+                    placeholder="0.00" required 
+                  />
+                </div>
+              </div>
+              <button type="submit" className="btn-primary" style={{ padding: '1rem' }} disabled={submitting}>
                 {submitting ? 'Processing...' : `Confirm ${modalType === 'RECEIVE' ? 'Deposit' : 'Transfer'}`}
               </button>
             </form>

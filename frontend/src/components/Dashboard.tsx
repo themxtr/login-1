@@ -16,7 +16,6 @@ const Dashboard = () => {
   // Role visibility logic
   const isViewer = mockRole === 'VIEWER';
   const displayVal = (val: number | string | undefined | null) => {
-    if (isViewer) return '****';
     const num = Number(val || 0);
     return `$${num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };

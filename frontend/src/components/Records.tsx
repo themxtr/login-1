@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Trash2, Edit2, X, Filter, Search, Calendar, DollarSign, Tag } from 'lucide-react';
+import { Plus, Trash2, Edit2, X, Filter, Search, DollarSign } from 'lucide-react';
 import { api, type Transaction } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 
 const Records = () => {
-  const { user, mockRole } = useAuth();
+  const { mockRole } = useAuth();
   const isReadOnly = mockRole === 'VIEWER';
   const roleLabel = mockRole.charAt(0) + mockRole.slice(1).toLowerCase();
 
@@ -80,26 +80,27 @@ const Records = () => {
     <motion.div 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="space-y-8"
+      className="card-layout"
     >
-      <div className="flex justify-between items-end">
+      <div className="page-header" style={{ marginBottom: '2rem', alignItems: 'center' }}>
         <div>
-          <h1 className="mb-2">Asset Ledger</h1>
-          <p className="text-secondary text-lg">Detailed history of all indexed transactions</p>
+          <h1 className="page-title">Asset Ledger</h1>
+          <p className="page-subtitle">Detailed history of all indexed transactions</p>
         </div>
-        <div className="flex items-center gap-3 px-4 py-2 bg-white/5 rounded-xl border border-glass-border">
-          <div className={`w-2 h-2 rounded-full ${isReadOnly ? 'bg-amber-500' : 'bg-emerald-500'}`} />
-          <span className="text-xs font-bold uppercase tracking-wider text-secondary">Perspective: {roleLabel}</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', background: 'white', padding: '0.5rem 1rem', borderRadius: '12px', border: '1px solid var(--glass-border)' }}>
+          <div className={`w-2 h-2 rounded-full ${isReadOnly ? 'bg-warning' : 'bg-success'}`} style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: isReadOnly ? 'var(--warning)' : 'var(--success)' }} />
+          <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Perspective: {roleLabel}</span>
         </div>
       </div>
 
       {/* Header Toolbar */}
-      <div className="toolbar bg-glass-bg backdrop-blur-xl p-4 rounded-3xl border border-glass-border shadow-xl">
+      <div className="toolbar card" style={{ padding: '1rem 1.5rem', borderRadius: '20px', display: 'flex', justifyContent: 'space-between' }}>
         <div className="toolbar-section">
-          <div className="relative group">
-            <Filter size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-secondary group-focus-within:text-primary transition-colors" />
+          <div style={{ position: 'relative' }}>
+            <Filter size={16} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
             <select 
-              className="form-select pl-12 bg-white/5 border-transparent focus:border-primary/30"
+              className="form-select"
+              style={{ paddingLeft: '2.5rem' }}
               value={filters.type}
               onChange={(e) => setFilters({ ...filters, type: e.target.value })}
             >
@@ -108,107 +109,100 @@ const Records = () => {
               <option value="EXPENSE">Expense / Burn</option>
             </select>
           </div>
-          <div className="relative group">
-            <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-secondary group-focus-within:text-primary transition-colors" />
+          <div style={{ position: 'relative' }}>
+            <Search size={16} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
             <input 
               type="text" 
-              placeholder="Search assets..."
-              className="form-input pl-12 bg-white/5 border-transparent focus:border-primary/30"
+              placeholder="Search category..."
+              className="form-input"
+              style={{ paddingLeft: '2.5rem', width: '250px' }}
               value={filters.category}
               onChange={(e) => setFilters({ ...filters, category: e.target.value })}
             />
           </div>
         </div>
 
-        <div className="ml-auto">
-          {user && (
+        <div>
+          {!isReadOnly && (
             <motion.button 
-              disabled={isReadOnly}
-              whileHover={isReadOnly ? {} : { y: -2 }}
-              whileTap={isReadOnly ? {} : { scale: 0.98 }}
-              className={`btn-primary flex items-center gap-2 ${isReadOnly ? 'opacity-50 cursor-not-allowed grayscale' : ''}`}
-              onClick={() => !isReadOnly && setShowModal(true)}
+              whileHover={{ y: -2 }}
+              whileTap={{ scale: 0.98 }}
+              className="btn-primary"
+              style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+              onClick={() => setShowModal(true)}
             >
-              <Plus size={20} /> 
-              {isReadOnly ? 'Read Only Mode' : 'New Asset Record'}
+              <Plus size={20} /> New Asset Record
             </motion.button>
           )}
         </div>
       </div>
 
       {/* Records Table */}
-      <div className="card !p-0 overflow-hidden">
-        <div className="p-8 border-b border-glass-border">
-          <h3 className="text-xl font-bold">Transaction History</h3>
-          <p className="text-secondary text-sm">Detailed ledger of all movements</p>
+      <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+        <div style={{ padding: '1.5rem 2rem', borderBottom: '1px solid var(--glass-border)' }}>
+          <h3 className="section-title">Transaction History</h3>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Detailed ledger of all movements</p>
         </div>
-        <div className="data-table-container px-8 pb-8">
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Category</th>
-                <th>Type</th>
-                <th>Amount</th>
-                <th className="text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <AnimatePresence mode="popLayout">
-                {records.map((record) => (
-                  <motion.tr 
-                    key={record.id}
-                    layout
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <td className="text-muted font-medium">{new Date(record.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</td>
-                    <td className="font-bold">{record.category}</td>
-                    <td>
-                      <span className={`trend-pill ${record.type === 'INCOME' ? 'up' : 'down'}`}>
-                        {record.type === 'INCOME' ? 'Revenue' : 'Expense'}
-                      </span>
-                    </td>
-                    <td className={`font-bold text-lg ${record.type === 'INCOME' ? 'text-primary' : 'text-white'}`}>
-                      {record.type === 'INCOME' ? '+' : '-'}${record.amount.toLocaleString()}
-                    </td>
-                    <td className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <button className="p-3 hover:bg-white/5 rounded-xl text-secondary hover:text-white transition-all">
-                          <Edit2 size={16} />
+        
+        <table className="data-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Category</th>
+              <th>Type</th>
+              <th>Amount</th>
+              <th style={{ textAlign: 'right' }}>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <AnimatePresence mode="popLayout">
+              {records.map((record) => (
+                <motion.tr 
+                  key={record.id}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                >
+                  <td style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
+                    {new Date(record.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                  </td>
+                  <td style={{ fontWeight: 700 }}>{record.category}</td>
+                  <td>
+                    <span className={`trend-pill ${record.type === 'INCOME' ? 'up' : 'down'}`}>
+                      {record.type === 'INCOME' ? 'Revenue' : 'Expense'}
+                    </span>
+                  </td>
+                  <td style={{ fontWeight: 800, color: record.type === 'INCOME' ? 'var(--success)' : 'var(--text-primary)' }}>
+                    {record.type === 'INCOME' ? '+' : '-'}${record.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                  </td>
+                  <td style={{ textAlign: 'right' }}>
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
+                      <button className="copy-btn" style={{ padding: '0.5rem' }}>
+                        <Edit2 size={16} />
+                      </button>
+                      {!isReadOnly && (
+                        <button 
+                          className="copy-btn" 
+                          style={{ padding: '0.5rem', color: 'var(--error)' }}
+                          onClick={() => handleDelete(record.id)}
+                        >
+                          <Trash2 size={16} />
                         </button>
-                        {user && (
-                          <button 
-                            className="p-3 hover:bg-rose-500/10 rounded-xl text-rose-500/60 hover:text-rose-500 transition-all"
-                            onClick={() => handleDelete(record.id)}
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        )}
-                      </div>
-                    </td>
-                  </motion.tr>
-                ))}
-              </AnimatePresence>
-            </tbody>
-          </table>
-          {records.length === 0 && !loading && (
-            <div className="py-20 text-center space-y-4">
-              <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Search size={32} className="text-secondary" />
-              </div>
-              <p className="text-secondary font-medium text-lg">No records found within these parameters.</p>
-              <button 
-                onClick={() => setFilters({ type: '', category: '' })}
-                className="text-primary font-bold hover:underline"
-              >
-                Clear all filters
-              </button>
-            </div>
-          )}
-        </div>
+                      )}
+                    </div>
+                  </td>
+                </motion.tr>
+              ))}
+            </AnimatePresence>
+          </tbody>
+        </table>
+
+        {records.length === 0 && !loading && (
+          <div style={{ padding: '4rem', textAlign: 'center' }}>
+            <Search size={48} style={{ color: 'var(--text-muted)', marginBottom: '1rem' }} />
+            <p style={{ color: 'var(--text-secondary)', fontWeight: 600 }}>No records found.</p>
+          </div>
+        )}
       </div>
 
       {/* Add Record Modal */}
@@ -219,37 +213,38 @@ const Records = () => {
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="card modal-content max-w-lg w-full !p-10 shadow-2xl"
+              className="modal-content"
             >
-              <div className="flex justify-between items-center mb-10">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
                 <div>
-                  <h2 className="text-3xl font-extrabold tracking-tight">New Entry</h2>
-                  <p className="text-secondary text-sm">Capture a new movement in your ledger</p>
+                  <h2 style={{ fontSize: '1.5rem', fontWeight: 800 }}>New Entry</h2>
+                  <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Capture a new movement in your ledger</p>
                 </div>
-                <button onClick={() => setShowModal(false)} className="p-3 hover:bg-white/5 rounded-2xl transition-all">
+                <button onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)' }}>
                   <X size={24} />
                 </button>
               </div>
 
-              <form onSubmit={handleCreate} className="space-y-8">
+              <form onSubmit={handleCreate} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                 <div className="form-group">
                   <label className="form-label">Transaction Amount</label>
-                  <div className="relative">
-                    <DollarSign size={24} className="absolute left-5 top-1/2 -translate-y-1/2 text-primary" />
+                  <div style={{ position: 'relative' }}>
+                    <DollarSign size={20} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--primary)' }} />
                     <input 
                       type="number" required step="0.01" 
-                      className="form-input pl-14 py-5 text-3xl font-bold tracking-tight bg-primary/5 border-primary/20"
+                      className="form-input"
+                      style={{ paddingLeft: '2.5rem', fontSize: '1.25rem', fontWeight: 700 }}
                       placeholder="0.00"
                       value={formData.amount} onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
                     />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-6">
+                <div className="grid-2">
                   <div className="form-group">
                     <label className="form-label">Type</label>
                     <select 
-                      className="form-select py-4"
+                      className="form-select"
                       value={formData.type} onChange={(e) => setFormData({ ...formData, type: e.target.value })}
                     >
                       <option value="EXPENSE">Expense</option>
@@ -258,37 +253,30 @@ const Records = () => {
                   </div>
                   <div className="form-group">
                     <label className="form-label">Date</label>
-                    <div className="relative">
-                      <Calendar size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-indigo-500 pointer-events-none" />
-                      <input 
-                        type="date" required 
-                        className="form-input pl-12 py-4"
-                        value={formData.date} onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                      />
-                    </div>
+                    <input 
+                      type="date" required 
+                      className="form-input"
+                      value={formData.date} onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                    />
                   </div>
                 </div>
 
                 <div className="form-group">
                   <label className="form-label">Category</label>
-                  <div className="relative">
-                    <Tag size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-secondary" />
-                    <input 
-                      type="text" required placeholder="e.g. Groceries, Rent, Salary"
-                      className="form-input pl-12 py-4"
-                      value={formData.category} onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    />
-                  </div>
+                  <input 
+                    type="text" required placeholder="e.g. Salary, Food, Rent"
+                    className="form-input"
+                    value={formData.category} onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                  />
                 </div>
 
-                <motion.button 
-                  whileHover={{ y: -2 }}
-                  whileTap={{ scale: 0.98 }}
+                <button 
                   type="submit" 
-                  className="btn-primary w-full py-5 text-xl"
+                  className="btn-primary"
+                  style={{ marginTop: '1rem', padding: '1rem' }}
                 >
                   Post Transaction
-                </motion.button>
+                </button>
               </form>
             </motion.div>
           </div>
