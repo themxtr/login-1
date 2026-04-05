@@ -207,18 +207,16 @@ const RatioCard = ({ title, value, subtitle, icon, status }: any) => {
   const statusColor = status === 'success' ? '#10b981' : status === 'warning' ? '#f59e0b' : '#3b82f6';
   return (
     <motion.div 
-      whileHover={{ y: -5 }}
-      className="card" 
-      style={{ padding: '1.25rem', borderLeft: `4px solid ${statusColor}` }}
+      whileHover={{ y: -5, scale: 1.02 }}
+      className="card square-card" 
+      style={{ borderTop: `4px solid ${statusColor}`, position: 'relative' }}
     >
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
-        <p style={{ fontSize: '0.75rem', fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.025em' }}>{title}</p>
-        <div style={{ color: statusColor, opacity: 0.8 }}>{icon}</div>
+      <div style={{ color: statusColor, opacity: 0.8, marginBottom: '1rem' }}>
+        {icon}
       </div>
-      <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
-        <h2 style={{ fontSize: '1.5rem', fontWeight: 800 }}>{value}</h2>
-      </div>
-      <p style={{ fontSize: '0.7rem', color: '#9ca3af', marginTop: '0.25rem' }}>{subtitle}</p>
+      <h2 style={{ fontSize: '1.75rem', fontWeight: 800, marginBottom: '0.25rem' }}>{value}</h2>
+      <p style={{ fontSize: '0.75rem', fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{title}</p>
+      <p style={{ fontSize: '0.65rem', color: '#9ca3af', marginTop: '0.5rem' }}>{subtitle}</p>
     </motion.div>
   );
 };

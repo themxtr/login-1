@@ -13,7 +13,7 @@ import { CurrencyProvider } from './contexts/CurrencyContext';
 
 const AppContent: React.FC = () => {
   const { user, loading, logout, mockRole, setMockRole, displayName } = useAuth();
-  const [currentPage, setCurrentPage] = useState<'dashboard' | 'analytics' | 'transaction' | 'notifications' | 'settings' | 'report'>('dashboard');
+  const [currentPage, setCurrentPage] = useState<'dashboard' | 'analytics' | 'transaction' | 'notifications' | 'settings'>('dashboard');
   const [showRoleMenu, setShowRoleMenu] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   
@@ -144,13 +144,6 @@ const AppContent: React.FC = () => {
               </>
             )}
 
-            {/* Admin Only Tabs */}
-            {mockRole === 'ADMIN' && (
-              <>
-                <li className={currentPage === 'report' ? 'active' : ''} onClick={() => setCurrentPage('report')}>Report</li>
-              </>
-            )}
-            
             <li className={currentPage === 'notifications' ? 'active' : ''} onClick={() => setCurrentPage('notifications')}>Notifications</li>
           </ul>
         </div>
@@ -168,13 +161,6 @@ const AppContent: React.FC = () => {
             {currentPage === 'analytics' && <Analytics />}
             {currentPage === 'settings' && <Settings />}
             {currentPage === 'notifications' && <Notifications />}
-            
-            {/* Placeholders for un-implemented items */}
-            {(currentPage === 'report') && (
-              <div className="module-placeholder">
-                <p>Module coming soon: {currentPage.charAt(0).toUpperCase() + currentPage.slice(1)}</p>
-              </div>
-            )}
           </motion.div>
         </AnimatePresence>
       </main>

@@ -380,10 +380,24 @@ h1, h2, h3, h4, h5, h6, .logo span {
 /* Layout Utilities */
 .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-md); }
 .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-md); }
+.grid-4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-md); }
 .grid-auto { display: grid; grid-template-columns: 2fr 1fr; gap: var(--space-md); align-items: flex-start; } 
 
+.square-card {
+  aspect-ratio: 1 / 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+@media (max-width: 1280px) {
+  .grid-4 { grid-template-columns: repeat(2, 1fr); }
+}
+
 @media (max-width: 1024px) {
-  .grid-3, .grid-auto { grid-template-columns: 1fr; }
+  .grid-3, .grid-4, .grid-auto { grid-template-columns: 1fr; }
   .top-nav { padding: 0 1.5rem; }
   .main-content { padding: 1.5rem; }
   .nav-center { display: none; }
