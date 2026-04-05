@@ -52,13 +52,13 @@ const Dashboard = () => {
       else acc[curr.month].expenses = curr.total;
       return acc;
     }, {})) : [
-      { month: 'Jan', income: 100, expenses: 50 },
-      { month: 'Feb', income: 0, expenses: 0 } // Fallback baseline to draw at least a line
+      { month: 'No Data', income: 0, expenses: 0 },
+      { month: 'Current', income: 0, expenses: 0 } // Baseline to prevent rendering errors
     ];
 
   // Format Radial chart data
   const colors = ['#0ea5e9', '#f97316', '#ef4444', '#16a34a', '#8b5cf6'];
-  const totalCatExpenses = summary?.categoryBreakdown?.reduce((a: any, b: any) => a + b.totalAmount, 0) || 1;
+  const totalCatExpenses = summary?.categoryBreakdown?.reduce((a: any, b: any) => a + b.totalAmount, 0) || 0;
   const rawRadialData = summary?.categoryBreakdown?.slice(0, 4) || [];
   
   const radialData = rawRadialData.length > 0 
@@ -68,8 +68,7 @@ const Dashboard = () => {
       fill: colors[index % colors.length]
     })) 
     : [
-      { name: 'Housing', value: 100, fill: colors[0] }, // Fallback logic
-      { name: 'Transport', value: 50, fill: colors[1] }
+      { name: 'No data', value: 1, fill: '#e5e7eb' }
     ];
 
   return (
@@ -136,9 +135,6 @@ const Dashboard = () => {
           <motion.div initial={{opacity:0, y:10}} animate={{opacity:1, y:0}} transition={{delay: 0.3}} className="card">
             <div className="section-header">
               <h3 className="section-title">Statistics</h3>
-              <div className="section-filter">
-                <Calendar size={16} /> Monthly
-              </div>
             </div>
             
             <div className="legend-group">
@@ -174,7 +170,12 @@ const Dashboard = () => {
           {/* Right Column: All Expenses & Banner */}
           <div className="card-layout">
             <motion.div initial={{opacity:0, y:10}} animate={{opacity:1, y:0}} transition={{delay: 0.4}} className="card">
-              <h3 className="section-title" style={{ marginBottom: '1.5rem' }}>All expenses</h3>
+              <div className="section-header" style={{ marginBottom: '1.5rem' }}>
+                <h3 className="section-title">All expenses</h3>
+                <div className="section-filter">
+                  <Calendar size={16} /> Monthly
+                </div>
+              </div>
               
               <div className="expense-splits">
                 <div className="split-item">
