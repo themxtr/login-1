@@ -11,6 +11,7 @@ const router = Router();
 const transactionSchema = zod.object({
   amount: zod.number(),
   type: zod.enum(['INCOME', 'EXPENSE']),
+  financialGroup: zod.enum(['REVENUE', 'COGS', 'EXPENSE', 'ASSET', 'LIABILITY', 'EQUITY']).optional(),
   category: zod.string().min(1),
   date: zod.coerce.date(),
   notes: zod.string().optional(),

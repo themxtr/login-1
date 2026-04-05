@@ -3,6 +3,7 @@ import { pgTable, text, real, uuid, timestamp, pgEnum } from 'drizzle-orm/pg-cor
 export const roleEnum = pgEnum('role', ['ADMIN', 'ANALYST', 'VIEWER']);
 export const statusEnum = pgEnum('status', ['ACTIVE', 'INACTIVE']);
 export const transactionTypeEnum = pgEnum('transaction_type', ['INCOME', 'EXPENSE']);
+export const financialGroupEnum = pgEnum('financial_group', ['REVENUE', 'COGS', 'EXPENSE', 'ASSET', 'LIABILITY', 'EQUITY']);
 
 export const users = pgTable('users', {
   id: text('id').primaryKey(),
@@ -18,6 +19,7 @@ export const transactions = pgTable('transactions', {
   userId: text('user_id').references(() => users.id).notNull(),
   amount: real('amount').notNull(),
   type: transactionTypeEnum('type').notNull(),
+  financialGroup: financialGroupEnum('financial_group').notNull().default('EXPENSE'),
   category: text('category').notNull(),
   date: timestamp('date').notNull(),
   notes: text('notes'),

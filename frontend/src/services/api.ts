@@ -103,6 +103,7 @@ export const api = {
     method: 'PATCH',
     body: JSON.stringify(data),
   }),
+  getAnalytics: () => request<any>('/analytics/ratios'),
 };
 export const {
   getSummary: getDashboardSummary,

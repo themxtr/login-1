@@ -8,6 +8,7 @@ import { authMiddleware } from './middleware/auth';
 import recordsRouter from './routes/records';
 import dashboardRouter from './routes/dashboard';
 import usersRouter from './routes/users';
+import analyticsRouter from './routes/analytics';
 
 const app = express();
 
@@ -52,6 +53,7 @@ app.use(authMiddleware);
 app.use('/api/records', recordsRouter);
 app.use('/api/dashboard', dashboardRouter);
 app.use('/api/users', usersRouter);
+app.use('/api/analytics', analyticsRouter);
 
 // Global Error Handler
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {

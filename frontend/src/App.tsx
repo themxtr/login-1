@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { LayoutDashboard, Search, MessageSquare, Bell, ChevronDown, CheckSquare, LogOut } from 'lucide-react';
 import Dashboard from './components/Dashboard';
-import Wallet from './components/Wallet';
 import Records from './components/Records';
+import Analytics from './components/Analytics';
 import Settings from './components/Settings';
 import Login from './components/Login';
 import Signup from './components/Signup';
@@ -12,7 +12,7 @@ import { CurrencyProvider } from './contexts/CurrencyContext';
 
 const AppContent: React.FC = () => {
   const { user, loading, logout, mockRole, setMockRole, displayName } = useAuth();
-  const [currentPage, setCurrentPage] = useState<'dashboard' | 'wallet' | 'analytics' | 'transaction' | 'help' | 'settings' | 'report'>('dashboard');
+  const [currentPage, setCurrentPage] = useState<'dashboard' | 'analytics' | 'transaction' | 'help' | 'settings' | 'report'>('dashboard');
   const [showRoleMenu, setShowRoleMenu] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   
@@ -137,7 +137,6 @@ const AppContent: React.FC = () => {
           </div>
           <ul className="tabs">
             <li className={currentPage === 'dashboard' ? 'active' : ''} onClick={() => setCurrentPage('dashboard')}>Overview</li>
-            <li className={currentPage === 'wallet' ? 'active' : ''} onClick={() => setCurrentPage('wallet')}>Wallet</li>
             <li className={currentPage === 'transaction' ? 'active' : ''} onClick={() => setCurrentPage('transaction')}>Transaction</li>
             <li className={currentPage === 'settings' ? 'active' : ''} onClick={() => setCurrentPage('settings')}>Settings</li>
             
@@ -168,9 +167,9 @@ const AppContent: React.FC = () => {
             transition={{ duration: 0.2 }}
           >
             {currentPage === 'dashboard' && <Dashboard />}
-            {currentPage === 'wallet' && <Wallet />}
             {currentPage === 'transaction' && <Records />}
             {currentPage === 'settings' && <Settings />}
+            {currentPage === 'analytics' && <Analytics />}
             
             {/* Placeholders for un-implemented items */}
             {(currentPage === 'analytics' || currentPage === 'report' || currentPage === 'help') && (
