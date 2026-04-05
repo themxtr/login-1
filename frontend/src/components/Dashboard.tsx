@@ -1,6 +1,27 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowUpRight, ArrowDownRight, DollarSign, CreditCard, Activity, TrendingUp } from 'lucide-react';
+import { 
+  ArrowUpRight, 
+  ArrowDownRight, 
+  DollarSign, 
+  CreditCard, 
+  Activity, 
+  TrendingUp,
+  Calendar,
+  Layers
+} from 'lucide-react';
+import { 
+  AreaChart, 
+  Area, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  Cell
+} from 'recharts';
 import { getDashboardSummary, type DashboardSummary } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -23,12 +44,24 @@ const Dashboard = () => {
     fetchSummary();
   }, []);
 
+  // Format data for Recharts
+  const trendData = summary?.monthlyTrends ? 
+    // Pivot data: Group by month, separate income/expenses
+    Object.values(summary.monthlyTrends.reduce((acc: any, curr) => {
+      if (!acc[curr.month]) acc[curr.month] = { month: curr.month, income: 0, expenses: 0 };
+      if (curr.type === 'INCOME') acc[curr.month].income = curr.total;
+      else acc[curr.month].expenses = curr.total;
+      return acc;
+    }, {})) : [];
+
+  const categoryData = summary?.categoryBreakdown || [];
+
   const stats = [
     { 
       label: 'Total Balance', 
       value: summary?.netBalance || 0, 
       icon: <DollarSign size={24} />, 
-      color: 'bg-emerald-500/10 text-emerald-500',
+      color: 'bg-emerald-500/10 text-emerald-500 shadow-emerald-500/20',
       trend: '+12.5%', 
       isUp: true 
     },
@@ -36,7 +69,7 @@ const Dashboard = () => {
       label: 'Monthly Income', 
       value: summary?.totalIncome || 0, 
       icon: <TrendingUp size={24} />, 
-      color: 'bg-blue-500/10 text-blue-500',
+      color: 'bg-indigo-500/10 text-indigo-500 shadow-indigo-500/20',
       trend: '+8.2%', 
       isUp: true 
     },
@@ -44,46 +77,66 @@ const Dashboard = () => {
       label: 'Monthly Expenses', 
       value: summary?.totalExpenses || 0, 
       icon: <CreditCard size={24} />, 
-      color: 'bg-rose-500/10 text-rose-500',
+      color: 'bg-rose-500/10 text-rose-500 shadow-rose-500/20',
       trend: '-2.4%', 
       isDown: true 
     },
     { 
-      label: 'Active Budget', 
-      value: 12450, 
+      label: 'Savings Rate', 
+      value: summary?.totalIncome ? ((summary.totalIncome - summary.totalExpenses) / summary.totalIncome) * 100 : 0, 
       icon: <Activity size={24} />, 
-      color: 'bg-amber-500/10 text-amber-500',
+      color: 'bg-amber-500/10 text-amber-500 shadow-amber-500/20',
       trend: 'On Track', 
-      isNeutral: true 
+      isNeutral: true,
+      isPercentage: true
     },
   ];
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      <div className="flex flex-col items-center justify-center h-[60vh] space-y-4">
+        <div className="relative w-16 h-16">
+          <div className="absolute inset-0 border-4 border-emerald-500/20 rounded-full"></div>
+          <div className="absolute inset-0 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+        </div>
+        <p className="text-secondary font-bold tracking-widest uppercase text-xs">Synchronizing Vault</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-12">
-      <header className="space-y-2">
-        <motion.h1 
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="text-4xl font-extrabold tracking-tight"
+    <div className="space-y-12 pb-12">
+      <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="space-y-2">
+          <motion.h1 
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="text-5xl font-extrabold tracking-tight"
+          >
+            Hi, {user?.email?.split('@')[0]}! 👋
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-secondary text-lg font-medium"
+          >
+            Welcome back. Your wealth portfolio is up <span className="text-emerald-500 font-bold">12.5%</span> this month.
+          </motion.p>
+        </div>
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="flex items-center gap-3 bg-white/5 border border-glass-border p-2 rounded-2xl"
         >
-          Hi, {user?.email?.split('@')[0]}! 👋
-        </motion.h1>
-        <motion.p 
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.1 }}
-          className="text-secondary text-lg"
-        >
-          Welcome back. Here's what's happening with your accounts today.
-        </motion.p>
+          <div className="bg-emerald-500/10 p-3 rounded-xl text-emerald-500">
+            <Calendar size={20} />
+          </div>
+          <div className="pr-4">
+            <p className="text-[10px] text-secondary font-bold uppercase tracking-widest">Today</p>
+            <p className="text-sm font-bold">{new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</p>
+          </div>
+        </motion.div>
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -93,10 +146,10 @@ const Dashboard = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}
-            className="card"
+            className="card stat-card"
           >
             <div className="flex justify-between items-start mb-6">
-              <div className={`p-3 rounded-2xl ${stat.color}`}>
+              <div className={`stat-icon-wrapper ${stat.color}`}>
                 {stat.icon}
               </div>
               {stat.trend && (
@@ -107,9 +160,9 @@ const Dashboard = () => {
               )}
             </div>
             <div>
-              <p className="text-secondary font-medium mb-1">{stat.label}</p>
-              <h3 className="text-3xl font-bold tracking-tight">
-                ${stat.value.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+              <p className="stat-label">{stat.label}</p>
+              <h3 className="stat-value">
+                {stat.isPercentage ? '' : '$'}{stat.value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}{stat.isPercentage ? '%' : ''}
               </h3>
             </div>
           </motion.div>
@@ -121,16 +174,63 @@ const Dashboard = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="lg:col-span-2 card h-[450px] flex items-center justify-center border-dashed"
+          className="lg:col-span-2 card"
         >
-          <div className="text-center space-y-4">
-            <div className="bg-primary/10 p-4 rounded-full inline-block">
-              <TrendingUp size={32} className="text-primary" />
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-indigo-500/10 rounded-2xl text-indigo-500">
+                <TrendingUp size={24} />
+              </div>
+              <div>
+                <h4 className="text-xl font-bold">Performance Trends</h4>
+                <p className="text-secondary text-sm">Monthly cashflow analysis</p>
+              </div>
             </div>
-            <h4 className="text-xl font-bold">Analytics Engine Initializing</h4>
-            <p className="text-secondary max-w-sm">
-              We're processing your transaction patterns to provide deep wealth insights.
-            </p>
+          </div>
+          
+          <div className="chart-container">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={trendData}>
+                <defs>
+                  <linearGradient id="incomeGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="var(--primary)" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="var(--primary)" stopOpacity={0}/>
+                  </linearGradient>
+                  <linearGradient id="expenseGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="var(--error)" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="var(--error)" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                <XAxis dataKey="month" axisLine={false} tickLine={false} dy={10} />
+                <YAxis axisLine={false} tickLine={false} tickFormatter={(val) => `$${val}`} />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: 'var(--bg-surface)', 
+                    border: '1px solid var(--glass-border)',
+                    borderRadius: '16px',
+                    boxShadow: 'var(--shadow-lux)',
+                    backdropFilter: 'blur(10px)'
+                  }}
+                />
+                <Area 
+                  type="monotone" 
+                  dataKey="income" 
+                  stroke="var(--primary)" 
+                  strokeWidth={3}
+                  fillOpacity={1} 
+                  fill="url(#incomeGradient)" 
+                />
+                <Area 
+                  type="monotone" 
+                  dataKey="expenses" 
+                  stroke="var(--error)" 
+                  strokeWidth={3}
+                  fillOpacity={1} 
+                  fill="url(#expenseGradient)" 
+                />
+              </AreaChart>
+            </ResponsiveContainer>
           </div>
         </motion.div>
 
@@ -138,25 +238,64 @@ const Dashboard = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
-          className="card overflow-hidden"
+          className="card"
         >
-          <h4 className="text-xl font-bold mb-6">Recent Activity</h4>
-          <div className="space-y-6">
-            {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="flex items-center gap-4 group cursor-pointer">
-                <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center font-bold text-secondary group-hover:bg-primary/20 group-hover:text-primary transition-all">
-                  T{i}
+          <div className="flex items-center gap-4 mb-8">
+            <div className="p-3 bg-amber-500/10 rounded-2xl text-amber-500">
+              <Layers size={24} />
+            </div>
+            <div>
+              <h4 className="text-xl font-bold">Allocations</h4>
+              <p className="text-secondary text-sm">Category distribution</p>
+            </div>
+          </div>
+
+          <div className="chart-container h-[300px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={categoryData} layout="vertical">
+                <XAxis type="number" hide />
+                <YAxis 
+                  type="category" 
+                  dataKey="category" 
+                  axisLine={false} 
+                  tickLine={false} 
+                  width={100}
+                />
+                <Tooltip cursor={{fill: 'rgba(255,255,255,0.05)'}} />
+                <Bar dataKey="totalAmount" radius={[0, 4, 4, 0]} barSize={20}>
+                  {categoryData.map((_entry, index) => (
+                    <Cell 
+                      key={`cell-${index}`} 
+                      fill={index % 2 === 0 ? 'var(--primary)' : 'var(--accent)'} 
+                    />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+
+          <div className="mt-8 space-y-4">
+            <h5 className="text-sm font-bold text-secondary uppercase tracking-widest">Recent Activity</h5>
+            <div className="space-y-4">
+              {summary?.recentActivity?.slice(0, 4).map((tx, i) => (
+                <div key={tx.id} className="flex items-center gap-4 group cursor-pointer p-2 hover:bg-white/5 rounded-2xl transition-all">
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm ${tx.type === 'INCOME' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-rose-500/10 text-rose-500'}`}>
+                    {tx.category.charAt(0)}
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-bold text-sm">{tx.category}</p>
+                    <p className="text-[10px] text-secondary">{new Date(tx.date).toLocaleDateString()}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className={`font-bold text-sm ${tx.type === 'INCOME' ? 'text-emerald-500' : 'text-white'}`}>
+                      {tx.type === 'INCOME' ? '+' : '-'}${tx.amount.toLocaleString()}
+                    </p>
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <p className="font-bold">Transaction {i}</p>
-                  <p className="text-xs text-secondary">Oct {10 + i}, 2023</p>
-                </div>
-                <div className="text-right">
-                  <p className="font-bold">-$120.00</p>
-                  <p className="text-[10px] text-success font-bold uppercase tracking-widest">Success</p>
-                </div>
-              </div>
-            ))}
+              )) || (
+                <p className="text-sm text-secondary italic">No recent transactions found</p>
+              )}
+            </div>
           </div>
         </motion.div>
       </div>

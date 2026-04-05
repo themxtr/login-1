@@ -34,19 +34,21 @@ const AppContent: React.FC = () => {
     <div className="app-container">
       <aside className="sidebar">
         <div className="logo">
-          <img src="/logo.svg" alt="FinanceDash" className="w-10 h-10 shadow-lg shadow-primary/20 rounded-xl" />
-          <span>FinanceDash</span>
+          <div className="logo-img flex items-center justify-center">
+            <LayoutDashboard className="text-white" size={24} />
+          </div>
+          <span>Vault.</span>
         </div>
         
         <nav className="nav-links">
           {[
             { id: 'dashboard', icon: <LayoutDashboard size={22} />, label: 'Overview' },
-            { id: 'records', icon: <ClipboardList size={22} />, label: 'Analytics' },
+            { id: 'records', icon: <ClipboardList size={22} />, label: 'Transactions' },
             { id: 'settings', icon: <SettingsIcon size={22} />, label: 'Settings' },
           ].map((item) => (
             <motion.li
               key={item.id}
-              whileHover={{ x: 5 }}
+              whileTap={{ scale: 0.95 }}
               onClick={() => setCurrentPage(item.id as any)}
               className={currentPage === item.id ? 'active' : ''}
             >
@@ -56,17 +58,17 @@ const AppContent: React.FC = () => {
           ))}
         </nav>
         
-        <div className="mt-auto pt-8 space-y-6">
-          <div className="p-5 rounded-3xl bg-white/5 border border-glass-border">
-            <p className="text-[10px] text-secondary font-bold uppercase tracking-widest mb-1">PRO PLAN</p>
-            <p className="text-xs font-bold">Unlocking AI Insights</p>
+        <div className="sidebar-footer">
+          <div className="p-6 rounded-3xl bg-emerald-500/5 border border-emerald-500/10 mb-6">
+            <p className="text-[10px] text-emerald-500 font-bold uppercase tracking-widest mb-1">PRO ACCOUNT</p>
+            <p className="text-sm font-bold text-white">AI Insights Active</p>
           </div>
           <button 
             onClick={logout}
-            className="w-full flex items-center gap-4 px-6 py-4 rounded-3xl text-secondary hover:bg-rose-500/10 hover:text-rose-500 transition-all font-bold"
+            className="btn-logout"
           >
-            <LogOut size={22} />
-            <span className="text-sm tracking-wide">Sign Out</span>
+            <LogOut size={20} />
+            <span>Sign Out</span>
           </button>
         </div>
       </aside>

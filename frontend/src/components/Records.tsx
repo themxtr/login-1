@@ -106,12 +106,12 @@ const Records = () => {
         <div className="ml-auto">
           {user && (
             <motion.button 
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="flex items-center gap-2 px-6 py-3 bg-primary hover:bg-primary-hover text-bg-deep font-bold rounded-xl shadow-lg shadow-primary/20 transition-all"
+              whileHover={{ y: -2 }}
+              whileTap={{ scale: 0.98 }}
+              className="btn-primary"
               onClick={() => setShowModal(true)}
             >
-              <Plus size={20} /> Add Record
+              <Plus size={20} className="inline mr-2" /> Add Transaction
             </motion.button>
           )}
         </div>
@@ -119,7 +119,11 @@ const Records = () => {
 
       {/* Records Table */}
       <div className="card !p-0 overflow-hidden">
-        <div className="data-table-container">
+        <div className="p-8 border-b border-glass-border">
+          <h3 className="text-xl font-bold">Transaction History</h3>
+          <p className="text-secondary text-sm">Detailed ledger of all movements</p>
+        </div>
+        <div className="data-table-container px-8 pb-8">
           <table className="data-table">
             <thead>
               <tr>
@@ -141,24 +145,24 @@ const Records = () => {
                     exit={{ opacity: 0, scale: 0.95 }}
                     transition={{ duration: 0.2 }}
                   >
-                    <td className="text-secondary">{new Date(record.date).toLocaleDateString()}</td>
-                    <td className="font-medium">{record.category}</td>
+                    <td className="text-muted font-medium">{new Date(record.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</td>
+                    <td className="font-bold">{record.category}</td>
                     <td>
-                      <span className={`badge ${record.type === 'INCOME' ? 'badge-income' : 'badge-expense'}`}>
-                        {record.type}
+                      <span className={`trend-pill ${record.type === 'INCOME' ? 'up' : 'down'}`}>
+                        {record.type === 'INCOME' ? 'Revenue' : 'Expense'}
                       </span>
                     </td>
-                    <td className={`font-bold ${record.type === 'INCOME' ? 'text-primary' : 'text-error'}`}>
+                    <td className={`font-bold text-lg ${record.type === 'INCOME' ? 'text-primary' : 'text-white'}`}>
                       {record.type === 'INCOME' ? '+' : '-'}${record.amount.toLocaleString()}
                     </td>
                     <td className="text-right">
                       <div className="flex justify-end gap-2">
-                        <button className="p-2 hover:bg-white/5 rounded-lg text-secondary hover:text-white transition-colors">
+                        <button className="p-3 hover:bg-white/5 rounded-xl text-secondary hover:text-white transition-all">
                           <Edit2 size={16} />
                         </button>
                         {user && (
                           <button 
-                            className="p-2 hover:bg-error/10 rounded-lg text-error/60 hover:text-error transition-colors"
+                            className="p-3 hover:bg-rose-500/10 rounded-xl text-rose-500/60 hover:text-rose-500 transition-all"
                             onClick={() => handleDelete(record.id)}
                           >
                             <Trash2 size={16} />
@@ -172,9 +176,17 @@ const Records = () => {
             </tbody>
           </table>
           {records.length === 0 && !loading && (
-            <div className="py-20 text-center text-secondary">
-              <div className="mb-4 opacity-20">📭</div>
-              <p>No records found. Start by adding a new transaction.</p>
+            <div className="py-20 text-center space-y-4">
+              <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Search size={32} className="text-secondary" />
+              </div>
+              <p className="text-secondary font-medium text-lg">No records found within these parameters.</p>
+              <button 
+                onClick={() => setFilters({ type: '', category: '' })}
+                className="text-primary font-bold hover:underline"
+              >
+                Clear all filters
+              </button>
             </div>
           )}
         </div>
@@ -185,37 +197,40 @@ const Records = () => {
         {showModal && (
           <div className="modal-overlay">
             <motion.div 
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="card modal-content"
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="card modal-content max-w-lg w-full !p-10 shadow-2xl"
             >
-              <div className="flex justify-between items-center mb-8">
-                <h2 className="text-2xl font-bold">New Transaction</h2>
-                <button onClick={() => setShowModal(false)} className="p-2 hover:bg-white/10 rounded-full transition-colors">
+              <div className="flex justify-between items-center mb-10">
+                <div>
+                  <h2 className="text-3xl font-extrabold tracking-tight">New Entry</h2>
+                  <p className="text-secondary text-sm">Capture a new movement in your ledger</p>
+                </div>
+                <button onClick={() => setShowModal(false)} className="p-3 hover:bg-white/5 rounded-2xl transition-all">
                   <X size={24} />
                 </button>
               </div>
 
-              <form onSubmit={handleCreate} className="space-y-6">
+              <form onSubmit={handleCreate} className="space-y-8">
                 <div className="form-group">
                   <label className="form-label">Transaction Amount</label>
                   <div className="relative">
-                    <DollarSign size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-500" />
+                    <DollarSign size={24} className="absolute left-5 top-1/2 -translate-y-1/2 text-primary" />
                     <input 
                       type="number" required step="0.01" 
-                      className="form-input pl-12 py-4 text-xl font-bold"
+                      className="form-input pl-14 py-5 text-3xl font-bold tracking-tight bg-primary/5 border-primary/20"
                       placeholder="0.00"
                       value={formData.amount} onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
                     />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-6">
                   <div className="form-group">
                     <label className="form-label">Type</label>
                     <select 
-                      className="form-select"
+                      className="form-select py-4"
                       value={formData.type} onChange={(e) => setFormData({ ...formData, type: e.target.value })}
                     >
                       <option value="EXPENSE">Expense</option>
@@ -225,10 +240,10 @@ const Records = () => {
                   <div className="form-group">
                     <label className="form-label">Date</label>
                     <div className="relative">
-                      <Calendar size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-indigo-500 pointer-events-none" />
+                      <Calendar size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-indigo-500 pointer-events-none" />
                       <input 
                         type="date" required 
-                        className="form-input pl-12"
+                        className="form-input pl-12 py-4"
                         value={formData.date} onChange={(e) => setFormData({ ...formData, date: e.target.value })}
                       />
                     </div>
@@ -238,22 +253,22 @@ const Records = () => {
                 <div className="form-group">
                   <label className="form-label">Category</label>
                   <div className="relative">
-                    <Tag size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-secondary" />
+                    <Tag size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-secondary" />
                     <input 
                       type="text" required placeholder="e.g. Groceries, Rent, Salary"
-                      className="form-input pl-12"
+                      className="form-input pl-12 py-4"
                       value={formData.category} onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                     />
                   </div>
                 </div>
 
                 <motion.button 
-                  whileHover={{ scale: 1.02 }}
+                  whileHover={{ y: -2 }}
                   whileTap={{ scale: 0.98 }}
                   type="submit" 
-                  className="w-full py-4 mt-2 bg-primary hover:bg-primary-hover text-bg-deep font-bold rounded-2xl shadow-lg shadow-primary/20 transition-all text-lg"
+                  className="btn-primary w-full py-5 text-xl"
                 >
-                  Create Transaction
+                  Post Transaction
                 </motion.button>
               </form>
             </motion.div>
